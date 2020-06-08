@@ -2,7 +2,7 @@ images:
   image: debian:latest
   script: |
       apt-get -qq update
-      apt-get -qq install python3-pip sudo procps yum yum-utils curl
+      apt-get -qq install python3-pip sudo procps yum yum-utils curl qemu-utils
       pip3 install diskimage-builder
       ### quick test - make real format later
       export DIB_RELEASE=8;disk-image-create -o centos8.raw -t raw centos vm stable-interface-names
