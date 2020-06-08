@@ -1,6 +1,7 @@
 images:
   image: debian:latest
   script: |
+      apt-get -qq update
       apt-get -qq install python3-pip
       pip3 install diskimage-builder
       ### quick test - make real format later
