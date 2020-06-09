@@ -1,16 +1,12 @@
 images:
   tags:
     - docker
-  image: debian:latest
+  image: gacybercenter/bakery-image:latest
   script: |
-      apt-get -qq update
-      apt-get -qq install python3-pip sudo procps yum yum-utils curl qemu-utils kpartx
-      pip3 install diskimage-builder
       ### quick test - make real format later
       ### note that these jobs must be run in a privileged container with all caps
-      export DIB_RELEASE=8;disk-image-create --no-tmpfs -o centos8.raw -t raw centos vm stable-interface-names
-      export DIB_RELEASE=7;disk-image-create --no-tmpfs -o centos7.raw -t raw centos vm stable-interface-names
-      export DIB_RELEASE=focal;disk-image-create --no-tmpfs -o ubuntu2004.raw -t raw ubuntu vm stable-interface-names      
+      apt-get -qq install libguestfs-tools
+      virt-builder centos-8.0 --install cloud-init --format raw
   artifacts:
     untracked: true
     when: on_success
