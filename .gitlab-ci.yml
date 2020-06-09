@@ -10,3 +10,5 @@ images:
       export DIB_RELEASE=8;disk-image-create -o centos8.raw -t raw centos vm stable-interface-names
   artifacts:
     untracked: true
+    when: on_success
+    expire_in: 1 day
