@@ -1,4 +1,6 @@
 images:
+  tags:
+    - docker
   image: debian:latest
   script: |
       apt-get -qq update
