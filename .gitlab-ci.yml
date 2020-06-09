@@ -10,4 +10,4 @@ images:
   artifacts:
     untracked: true
     when: on_success
-    expire_in: 1 day
+    expire_in: 1 minute
