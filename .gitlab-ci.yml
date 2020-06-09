@@ -4,9 +4,8 @@ images:
   image: gacybercenter/bakery-image:latest
   script: |
       ### quick test - make real format later
-      ### note that these jobs must be run in a privileged container with all caps
-      apt-get -qq install libguestfs-tools
       virt-builder centos-8.0 --install cloud-init --format raw
+      virt-builder debian-10 --install cloud-init,lxqt --format raw
   artifacts:
     untracked: true
     when: on_success
