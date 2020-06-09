@@ -8,8 +8,8 @@ images:
       pip3 install diskimage-builder
       ### quick test - make real format later
       ### note that these jobs must be run in a privileged container with all caps
-      export DIB_RELEASE=8;disk-image-create -o centos8.raw -t raw centos vm stable-interface-names
-      export DIB_RELEASE=focal;disk-image-create -o ubuntu2004.raw -t raw ubuntu vm stable-interface-names      
+      export DIB_RELEASE=8;disk-image-create --no-tmpfs -o centos8.raw -t raw centos vm stable-interface-names
+      export DIB_RELEASE=focal;disk-image-create --no-tmpfs -o ubuntu2004.raw -t raw ubuntu vm stable-interface-names      
   artifacts:
     untracked: true
     when: on_success
