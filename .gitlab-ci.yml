@@ -3,9 +3,11 @@ images:
     - docker
   image: gacybercenter/bakery-image:latest
   script: |
-      ### quick test - make real format later
-      virt-builder centos-8.0 --install cloud-init --format raw
+      ### quick test - make real format later using yaml descriptor
+      virt-builder centos-8.0 --install cloud-init --output centos8.raw
+      xz -zT 0 centos8.raw
       virt-builder debian-10 --install cloud-init,lxqt --arch amd64 --format raw --output debian-lxqt.raw --run-command "sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub && update-grub"
+      xz -zT 0 debian-lxqt.raw
   artifacts:
     untracked: true
     when: on_success
