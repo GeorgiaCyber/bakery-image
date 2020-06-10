@@ -5,8 +5,7 @@ images:
   script: |
       ### quick test - make real format later
       virt-builder centos-8.0 --install cloud-init --format raw
-      virt-builder debian-10 --install cloud-init,lxqt --arch amd64 --format raw --output debian-lxqt.raw --run-command "sed -i 's/GRUB
-_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub && update-grub"
+      virt-builder debian-10 --install cloud-init,lxqt --arch amd64 --format raw --output debian-lxqt.raw --run-command "sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub && update-grub"
   artifacts:
     untracked: true
     when: on_success
