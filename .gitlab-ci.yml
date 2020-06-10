@@ -8,7 +8,7 @@ images:
       apt-get -qq install jq
       #virt-builder centos-8.0 --install cloud-init --output centos8.raw
       #xz -zT 0 centos8.raw
-      dd if=/dev/zero of=./centos8.raw.xz bs=1m count=10
+      dd if=/dev/zero of=./centos8.raw.xz bs=1M count=10
       auth_string=$(echo -n $B2_APPLICATION_KEY_ID:$B2_APPLICATION_KEY|base64)
       read auth_token apiUrl < <(echo $(curl https://api.backblazeb2.com/b2api/v2/b2_authorize_account -H "Authorization: Basic $auth_string" | jq -r '.authorizationToken, .apiUrl'))
       read upload_auth_token uploadUrl < <(echo $(curl $apiUrl/b2api/v2/b2_get_upload_url -H "Authorization: $auth_token" -d '{"bucketId": "$B2_BAKERY_BUCKET_ID"}' | jq -r '.authorizationToken, .uploadUrl'))
