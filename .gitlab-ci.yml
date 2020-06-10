@@ -4,8 +4,6 @@ images:
   image: gacybercenter/image-bakery:latest
   script: |
       ### quick test - make real format later using yaml descriptor
-      apt-get -qq update
-      apt-get -qq install jq
       ### centos-8
       virt-builder centos-8.0 --install cloud-init --output centos8.raw
       xz -zT 0 centos8.raw
