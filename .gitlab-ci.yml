@@ -1,7 +1,7 @@
 images:
   tags:
     - docker
-  image: gacybercenter/bakery-image:latest
+  image: gacybercenter/image-bakery:latest
   script: |
       ### quick test - make real format later using yaml descriptor
       apt-get -qq update
