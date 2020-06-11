@@ -1,0 +1,6 @@
+= Image Bakery
+
+This project is focused on creating reproducible images of all kinds (vm, docker, tarballs for writing directly to metal, etc.)
+This project uses a combination of virt-builder, disk-imagebuilder, docker, and other tools to achieve these goals.
+The format for defining an image build is still unstable and very much a work in progress, so the ugly direct-to-ci hack is just being used for testing purposes.
+Note that your runner must expose /dev/kvm to the job, or else it will be painfully slow (this means running a docker container in privileged mode, or adding your runner job user to the kvm group.
