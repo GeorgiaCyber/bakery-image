@@ -1,7 +1,6 @@
 images:
   tags:
     - shell
-#  image: gacybercenter/image-bakery:latest
   script: |
       ### quick test - make real format later using yaml descriptor
       ### centos-8
