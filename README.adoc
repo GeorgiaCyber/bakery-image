@@ -6,7 +6,7 @@ The format for defining an image build is still unstable and very much a work in
 Note that your runner must expose /dev/kvm to the job, or else it will be painfully slow (this means running a docker container in privileged mode, adding your runner job user to the kvm group,
 or somehow otherwise exposing /dev/kvm to your job as appropriate.)
 
-.template-format.yaml
+.sample image.yaml
 [source, yaml]
 ----
 name: #unparsed
@@ -25,4 +25,25 @@ name: #unparsed
   custom_script: |
       ## This script will be passed directly into the native shell of your image as the last step
       ## Use this to do things like set grub boot times, force predictable udev names, load kernel modules, etc.
+----
+
+.sample config.toml
+[source, toml]
+----
+[[runners]]
+  ...
+  [runners.custom_build_dir]
+  [runners.cache]
+    [runners.cache.s3]
+    [runners.cache.gcs]
+  [runners.docker]
+    tls_verify = false
+    image = "debian:latest"
+    privileged = false
+    devices = ["/dev/kvm"]
+    disable_entrypoint_overwrite = false
+    oom_kill_disable = false
+    disable_cache = false
+    volumes = ["/cache"]
+    shm_size = 0
 ----
