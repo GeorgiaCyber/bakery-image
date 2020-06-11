@@ -4,3 +4,24 @@ This project is focused on creating reproducible images of all kinds (vm, docker
 This project uses a combination of virt-builder, disk-imagebuilder, docker, and other tools to achieve these goals.
 The format for defining an image build is still unstable and very much a work in progress, so the ugly direct-to-ci hack is just being used for testing purposes.
 Note that your runner must expose /dev/kvm to the job, or else it will be painfully slow (this means running a docker container in privileged mode, or adding your runner job user to the kvm group.
+
+.template-format.yaml
+[source, yaml]
+----
+name: #unparsed
+  method: virt-builder #can be any one of [virt-builder, diskimage-builder, docker/podman, or ???]
+  source: centos-8.0 #basis for creating the image.  This will differ depending on the method.
+  args: #list of args to be passed directly to method cli. [arg1, arg2, arg3] format is also acceptable
+    - arg1
+    - arg2
+    - arg3
+  format: raw #can be [raw, qcow2, tgz, docker]
+  compress: true #compress with xz -zT 0 {{ file }}
+  packages: #packages to install in image
+    - pkg1
+    - pkg2
+    - pkg3
+  custom_script: |
+      ## This script will be passed directly into the native shell of your image as the last step
+      ## Use this to do things like set grub boot times, force predictable udev names, load kernel modules, etc.
+----
