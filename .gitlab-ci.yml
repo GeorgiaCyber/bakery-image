@@ -1,6 +1,7 @@
 images:
   tags:
-    - shell
+    - docker
+  image: gacybercenter/image-bakery:latest
   script: |
       ### quick test - make real format later using yaml descriptor
       ### centos-8
