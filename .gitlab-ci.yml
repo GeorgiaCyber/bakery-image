@@ -5,7 +5,7 @@ images:
   script: |
       ### quick test - make real format later using yaml descriptor
       ### centos-8 amd64
-      time virt-builder centos-8.0 --install cloud-init --output centos8.raw
+      time virt-builder centos-8.0 --selinux-relabel --install cloud-init --output centos8.raw
       time xz -zT 0 centos8.raw
       auth_string=$(echo -n $B2_APPLICATION_KEY_ID:$B2_APPLICATION_KEY|base64)
       read auth_token apiUrl < <(echo $(curl -s https://api.backblazeb2.com/b2api/v2/b2_authorize_account -H "Authorization: Basic $auth_string" | jq -r '.authorizationToken, .apiUrl'))
