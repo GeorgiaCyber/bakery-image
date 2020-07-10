@@ -1,0 +1,20 @@
+image_name: ubuntu2004
+
+method: qemu-img
+
+image_url: https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-ppc64el.img
+
+output_format: raw
+
+compress: True
+
+convert: True
+
+packages:
+    - ipcalc
+    - neofetch
+
+customization: |
+    sed - i 's/ttyS0,115200/ttys0,115200 net.ifnames=1 biosdevname=1/' /etc/default/grub"
+    grub2-mkconfig -o /boot/grub2/grub.cfg"
+    mv /etc/sysconfig/network-scripts/ifcfg-eth0 /etc/sysconfig/network-scripts/ifcfg-ens3"
