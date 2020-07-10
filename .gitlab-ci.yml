@@ -44,4 +44,4 @@ images:
       -H "X-Bz-Info-Author: unknown" \
       --data-binary "@focal-ppc64el.raw.xz" \
       $uploadUrl
-  allow_failure: true    
+      
