@@ -4,6 +4,10 @@ default:
   image: gacybercenter/image-bakery:latest
   tags:
     - docker
+  before_script:
+    - apt install npm -y
+    - npm install -g dockerlint
+    - apt install yamllint -y
 
 stages:
   - Static Analysis
