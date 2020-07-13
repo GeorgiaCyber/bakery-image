@@ -15,19 +15,19 @@ mypy:
   script: |
     pwd
     ls -l
-    python3 -m mypy scripts/*.py
+    python3 -m mypy ./image_baker
   allow_failure: true
 
 flake8:
   stage: Static Analysis
   script: |
-    flake8 --max-line-length=120 scripts/*.py
+    flake8 --max-line-length=120 ./image_baker
   allow_failure: true
 
 pylint:
   stage: Static Analysis
   script: |
-    pylint -d C0301 scripts/*.py
+    pylint -d C0301 ./image_baker
   allow_failure: true
 
 yamllint:
