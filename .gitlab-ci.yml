@@ -31,12 +31,14 @@ pylint:
   allow_failure: true
 
 yamllint:
+  stage: Static Analysis
   image: vpgrp/linter:latest
   script: |
     yamlllint .
   allow_failure: true
 
 dockerlint:
+  stage: Static Analysis
   image: vpgrp/linter:latest
   script: |
     dockerlint .
