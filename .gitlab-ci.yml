@@ -34,7 +34,7 @@ yamllint:
   stage: Static Analysis
   script: |
     pip3 install yamllint
-    yamlllint .
+    python3 yamlllint .
   allow_failure: true
 
 dockerlint:
