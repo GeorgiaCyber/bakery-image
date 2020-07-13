@@ -27,19 +27,18 @@ def build_method():
         elif item == 'method' and value == 'podman':
             return value
         else:
+            return print("error, valid method not selected")
             
 
-def compression():
+# def compression():
 
-def virt_build():
+# def virt_build():
 
-def diskimage_build():
+# def diskimage_build():
 
-def docker_build():
+# def docker_build():
 
-def podman_build():
-
-
+# def podman_build():
 
 def download_url():
 # Parses yaml for image_url if provided
