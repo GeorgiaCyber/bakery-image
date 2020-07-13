@@ -4,10 +4,10 @@ default:
   image: gacybercenter/image-bakery:latest
   tags:
     - docker
-  before_script:
-    - apt install npm -y
-    - npm install -g dockerlint
-    - apt install yamllint -y
+  before_script: |
+    apt install npm -y
+    npm install -g dockerlint
+    apt install yamllint -y
 
 stages:
   - Static Analysis
@@ -36,14 +36,12 @@ pylint:
 
 yamllint:
   stage: Static Analysis
-  image: vpgrp/linter:latest
   script: |
     yamlllint .
   allow_failure: true
 
 dockerlint:
   stage: Static Analysis
-  image: vpgrp/linter:latest
   script: |
     dockerlint .
   allow_failure: true
