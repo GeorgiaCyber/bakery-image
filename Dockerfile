@@ -3,7 +3,8 @@ FROM debian:latest
 ARG DEBIAN_FRONTEND=noninteractive
 ## Set up libguestfs-tools and dependencies
 RUN apt-get -qq update
-RUN apt-get -qq install libguestfs-tools jq python3-pip mypy flake8 pylint
-RUN pip3 install pyyaml requests tqdm
+RUN apt-get -qq install npm libguestfs-tools jq python3-pip mypy flake8 pylint npm
+RUN pip3 install pyyaml requests tqdm yamllint
+RUN npm install -g dockerlint
 
-CMD tail -f /var/log/messages
+CMD ["/bin/bash", "tail -f /var/log/messages"]

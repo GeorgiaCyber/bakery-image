@@ -26,6 +26,20 @@ def build_method():
             return value
         elif item == 'method' and value == 'podman':
             return value
+        else:
+            
+
+def compression():
+
+def virt_build():
+
+def diskimage_build():
+
+def docker_build():
+
+def podman_build():
+
+
 
 def download_url():
 # Parses yaml for image_url if provided

@@ -1,3 +1,5 @@
+---
+
 image_name: ubuntu2004
 
 method: qemu-img
@@ -6,9 +8,9 @@ image_url: https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-p
 
 output_format: raw
 
-compress: True
+compress: true
 
-convert: True
+convert: true
 
 packages:
     - ipcalc
