@@ -33,7 +33,7 @@ pylint:
 yamllint:
   stage: Static Analysis
   script: |
-    apt install yamllint -y
+    pip3 install yamllint
     yamlllint .
   allow_failure: true
 
