@@ -1,7 +1,7 @@
 ---
 
 default:
-  image: gacybercenter/image-bakery:latest
+  image: gacybercenter/gacyber-lint:latest
   tags:
     - docker
 
@@ -33,15 +33,12 @@ pylint:
 yamllint:
   stage: Static Analysis
   script: |
-    pip3 install yamllint
     yamlllint -c .yamllint.yml  .
   allow_failure: true
 
 dockerlint:
   stage: Static Analysis
   script: |
-    apt install npm -y
-    npm install -g dockerlint
     dockerlint .
   allow_failure: true
 
