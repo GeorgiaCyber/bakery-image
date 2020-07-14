@@ -1,4 +1,4 @@
-import subprocess
+import subprocess as sp
 import hashlib
 import yaml
 import requests
@@ -87,16 +87,21 @@ class DownloadImage:
         sha.update(content)
         hash_file = sha.hexdigest()
         print('\nImage SHA256 Hash: {}'.format(hash_file))
+    
 
-class QemuImgBuild:
-    def __init__(self, image_name, output_format, convert, packages, customization):
+class QemuImgConvert:
+    def __init__(self, image_name, image_url, output_format, convert, packages, customization):
         self.image_name = image_name
+        self.image_url = image_url
         self.output_format = output_format
         self.convert = convert
         self.packages = packages
         self.customization = customization
 
-    def qemu_build(self):
+    def qemu_convert(self):
+        file = self.image_url.split('/')[-1]
+        print('\nConverting {} to {} format with qemu-img utility:'.format(file, self.output_format))
+        sp.call('qemu-img convert -f {} -O {} {} {} && rm {}'.format(file_type, self.output_format, file, new_file))
         
 
 def print_config(image_config):
@@ -129,10 +134,11 @@ packages = config_item.packages()
 customization = config_item.customization()
 
 if method == 'qemu-img':
-    qemubuild = QemuImgBuild(image_name, output_format, convert, packages, customization)
+    qemubuild = QemuImgConvert(image_name, image_url, output_format, convert, packages, customization)
     DownloadImage(image_url).download_image()
     DownloadImage(image_url).hash_download_image()
-    qemubuild.qemu_build()
+    if convert == 'true':
+        qemubuild.qemu_convert()
 
 # elif method == 'virt-builder':
 
