@@ -39,7 +39,7 @@ yamllint:
 dockerlint:
   stage: Static Analysis
   script: |
-    dockerlint .
+    dockerlint
   allow_failure: true
 
 # convert_uncompress:

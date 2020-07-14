@@ -8,7 +8,7 @@ image_url: https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-p
 
 output_format: raw
 
-compress: true
+compressed: true
 
 convert: true
 
