@@ -21,7 +21,7 @@ class ParseYaml:
     def image_name(self):
     # Parses yaml for image_name
         for item, value in list(self.image_config.items()):
-            if item == '':
+            if item == 'image_name':
                 return value
     def method(self):
     # Parses yaml for method
@@ -90,22 +90,31 @@ class DownloadImage:
     
 
 class QemuImgConvert:
-    def __init__(self, image_name, image_url, output_format, convert, packages, customization):
+    def __init__(self, image_name, image_url, output_format):
     #  Set all common variables for the class
         self.image_name = image_name
         self.image_url = image_url
         self.output_format = output_format
-        self.convert = convert
-        self.packages = packages
-        self.customization = customization
     def qemu_convert(self):
     #  Perform qemu image conversion for format type specified
         file = self.image_url.split('/')[-1].replace(".img", ".qcow2")
         orig_format = file.split('.')[-1]
-        new_filename = file.replace("qcow2", (self.output_format))
-        print('\nConverting {} to {} format with qemu-img utility:'.format(file, self.output_format))
-        sp.call('qemu-img convert -f {} -O {} {} {} && rm {}'.format(orig_format, self.output_format, file, new_filename,  file))
-        
+        new_filename = self.image_name
+        print('\nConverting {} to {} format with qemu-img utility...'.format(file, self.output_format))
+        sp.call('qemu-img convert -f {} -O {} {} {} && rm {}'.format(orig_format, self.output_format, file, new_filename,  file), shell=True)
+
+class ImageCustomization:
+    # Add custom packages
+    def __init__(self, image_name, packages, customization):
+        self.image_name = image_name
+        self.packages = packages
+        self.customization = customization
+    def package_install(self):
+        # print(self.packages)
+        sp.call('virt-customize -a {} --run-command {}'.format(self.packages, customization))
+    def custom_config(self):
+    # run user scripts
+        print(self.customization)
 
 def print_config(image_config):
         print('\nYAML loaded with the following specification:\n')
@@ -114,10 +123,21 @@ def print_config(image_config):
             print(str(key)+': ' + str(value))
         return 
 
+def hash_image(image_name):
+    # Create hash value for image
+        file = image_name
+        with open(file, 'rb') as file:
+            content = file.read()
+        sha = hashlib.sha256()
+        sha.update(content)
+        hash_file = sha.hexdigest()
+        print('\nImage SHA256 Hash: {}'.format(hash_file))
+
 # Specify template dir/file and load with yaml parser
 template_file = '../templates/ubuntu.yaml'
 image_config = LoadYaml(template_file).load_yaml()
 
+# elif method == 'virt-builder':
 # Associate keys with item variables
 config_item = ParseYaml(image_config)
 
@@ -134,12 +154,21 @@ convert = config_item.convert()
 packages = config_item.packages()
 customization = config_item.customization()
 
-# if method == 'qemu-img':
-#     qemubuild = QemuImgConvert(image_name, image_url, output_format, convert, packages, customization)
-#     DownloadImage(image_url).download_image()
-#     DownloadImage(image_url).hash_download_image()
+
 if convert == True:
+    qemubuild = QemuImgConvert(image_name, image_url, output_format)
+    DownloadImage(image_url).download_image()
+    DownloadImage(image_url).hash_download_image()
     qemubuild.qemu_convert()
+
+if customization == True:
+    customize_image = ImageCustomization(image_name, packages, customization)
+    customize_image.package_install()
+    customize_image.custom_config()
+
+if compressed == True:
+
+if compression == True:
 
 # elif method == 'virt-builder':
 
