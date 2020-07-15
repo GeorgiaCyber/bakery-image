@@ -1,8 +1,8 @@
+import os
 import subprocess as sp
 import hashlib
 import yaml
 import requests
-import guestfs
 from tqdm import tqdm
 
 class LoadYaml:
@@ -65,7 +65,8 @@ class DownloadImage:
        
     def download_image(self):
     # Downloads image from url passed from download_url() if available
-        file = self.image_url.split('/')[-1]
+        file = self.image_url.split('/')[-1].replace(".img", ".qcow2")
+        # file = file.replace("img", "qcow2")
         r = requests.get(self.image_url, stream=True, allow_redirects=True)
         total_size = int(r.headers.get('content-length'))
         initial_pos = 0
@@ -77,10 +78,9 @@ class DownloadImage:
                     if ch:
                         f.write(ch)
                         pbar.update(len(ch))
-
     def hash_download_image(self):
     # Create hash value for image downloaded with download_image()
-        file = self.image_url.split('/')[-1]
+        file = self.image_url.split('/')[-1].replace(".img", ".qcow2")
         with open(file, 'rb') as file:
             content = file.read()
         sha = hashlib.sha256()
@@ -91,27 +91,28 @@ class DownloadImage:
 
 class QemuImgConvert:
     def __init__(self, image_name, image_url, output_format, convert, packages, customization):
+    #  Set all common variables for the class
         self.image_name = image_name
         self.image_url = image_url
         self.output_format = output_format
         self.convert = convert
         self.packages = packages
         self.customization = customization
-
     def qemu_convert(self):
-        file = self.image_url.split('/')[-1]
+    #  Perform qemu image conversion for format type specified
+        file = self.image_url.split('/')[-1].replace(".img", ".qcow2")
+        orig_format = file.split('.')[-1]
+        new_filename = file.replace("qcow2", (self.output_format))
         print('\nConverting {} to {} format with qemu-img utility:'.format(file, self.output_format))
-        sp.call('qemu-img convert -f {} -O {} {} {} && rm {}'.format(file_type, self.output_format, file, new_file))
+        sp.call('qemu-img convert -f {} -O {} {} {} && rm {}'.format(orig_format, self.output_format, file, new_filename,  file))
         
 
 def print_config(image_config):
-        print('\nYAML loaded with the following specfication:\n')
-	# Prints YAML properties to terminal    
+        print('\nYAML loaded with the following specification:\n')
+	# Print YAML properties to terminal    Z
         for key, value in image_config.items():
             print(str(key)+': ' + str(value))
         return 
-
-
 
 # Specify template dir/file and load with yaml parser
 template_file = '../templates/ubuntu.yaml'
@@ -133,12 +134,12 @@ convert = config_item.convert()
 packages = config_item.packages()
 customization = config_item.customization()
 
-if method == 'qemu-img':
-    qemubuild = QemuImgConvert(image_name, image_url, output_format, convert, packages, customization)
-    DownloadImage(image_url).download_image()
-    DownloadImage(image_url).hash_download_image()
-    if convert == 'true':
-        qemubuild.qemu_convert()
+# if method == 'qemu-img':
+#     qemubuild = QemuImgConvert(image_name, image_url, output_format, convert, packages, customization)
+#     DownloadImage(image_url).download_image()
+#     DownloadImage(image_url).hash_download_image()
+if convert == True:
+    qemubuild.qemu_convert()
 
 # elif method == 'virt-builder':
 
