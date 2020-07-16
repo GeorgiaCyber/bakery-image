@@ -15,7 +15,7 @@ mypy:
   script: |
     pwd
     ls -l
-    python3 -m mypy ./image_baker
+    python3 -m mypy ./image_baker --ignore-missing-imports
   allow_failure: true
 
 flake8:
@@ -33,7 +33,7 @@ pylint:
 yamllint:
   stage: Static Analysis
   script: |
-    yamlllint -c .yamllint.yml  .
+    yamllint -c .yamllint.yml  .
   allow_failure: true
 
 dockerlint:

@@ -1,70 +1,81 @@
-import os
 import subprocess as sp
 import hashlib
 import yaml
 import requests
 from tqdm import tqdm
 
+
 class LoadYaml:
     def __init__(self, template_file):
         self.template_file = template_file
-        # self.build_method = build_method    
+        # self.build_method = build_method
+
     def load_yaml(self):
-    # Loads a yaml file
+        # Loads a yaml file
         with open(self.template_file, "r") as file_descriptor:
             data = yaml.safe_load(file_descriptor,)
         return data
 
+
 class ParseYaml:
     def __init__(self, image_config):
         self.image_config = image_config
+
     def image_name(self):
-    # Parses yaml for image_name
+        # Parses yaml for image_name
         for item, value in list(self.image_config.items()):
             if item == 'image_name':
                 return value
+
     def method(self):
-    # Parses yaml for method
+        # Parses yaml for method
         for item, value in list(self.image_config.items()):
             if item == 'method':
                 return value
+
     def image_url(self):
-    # Parses yaml for image_url
+        # Parses yaml for image_url
         for item, value in list(self.image_config.items()):
             if item == 'image_url':
                 return value
+
     def output_format(self):
-    # Parses yaml for output_format
+        # Parses yaml for output_format
         for item, value in list(self.image_config.items()):
             if item == 'output_format':
                 return value
+
     def compressed(self):
-    # Parses yaml for ocompression
+        # Parses yaml for ocompression
         for item, value in list(self.image_config.items()):
             if item == 'compressed':
                 return value
+
     def convert(self):
-    # Parses yaml for conversion
+        # Parses yaml for conversion
         for item, value in list(self.image_config.items()):
             if item == 'convert':
                 return value
+
     def packages(self):
-    # Parses yaml for packages
+        # Parses yaml for packages
         for item, value in list(self.image_config.items()):
             if item == 'packages':
                 return value
+
     def customization(self):
-    # Parses yaml for customization
+        # Parses yaml for customization
         for item, value in list(self.image_config.items()):
             if item == 'customization':
                 return value
 
+
 class DownloadImage:
     def __init__(self, image_url):
         self.image_url = image_url
-       
+
     def download_image(self):
-    # Downloads image from url passed from download_url() if available
+        # Downloads image from url passed from download_url() if available
         file = self.image_url.split('/')[-1].replace(".img", ".qcow2")
         # file = file.replace("img", "qcow2")
         r = requests.get(self.image_url, stream=True, allow_redirects=True)
@@ -78,8 +89,9 @@ class DownloadImage:
                     if ch:
                         f.write(ch)
                         pbar.update(len(ch))
+
     def hash_download_image(self):
-    # Create hash value for image downloaded with download_image()
+        # Create hash value for image downloaded with download_image()
         file = self.image_url.split('/')[-1].replace(".img", ".qcow2")
         with open(file, 'rb') as file:
             content = file.read()
@@ -87,44 +99,48 @@ class DownloadImage:
         sha.update(content)
         hash_file = sha.hexdigest()
         print('\nImage SHA256 Hash: {}'.format(hash_file))
-    
+
 
 class QemuImgConvert:
     def __init__(self, image_name, image_url, output_format):
-    #  Set all common variables for the class
+        #  Set all common variables for the class
         self.image_name = image_name
         self.image_url = image_url
         self.output_format = output_format
+
     def qemu_convert(self):
-    #  Perform qemu image conversion for format type specified
+        #  Perform qemu image conversion for format type specified
         file = self.image_url.split('/')[-1].replace(".img", ".qcow2")
         orig_format = file.split('.')[-1]
         new_filename = self.image_name
         print('\nConverting {} to {} format with qemu-img utility...'.format(file, self.output_format))
-        sp.call('qemu-img convert -f {} -O {} {} {} && rm {}'.format(orig_format, self.output_format, file, new_filename,  file), shell=True)
+        sp.call('qemu-img convert -f {} -O {} {} {} && rm {}'.format((orig_format, self.output_format,
+                                                                      file, new_filename, file), shell=True))
 
-class ImageCustomization:
-    # Add custom packages
-    def __init__(self, image_name, packages, customization):
-        self.image_name = image_name
-        self.packages = packages
-        self.customization = customization
-    def package_install(self):
-        # print(self.packages)
-        sp.call('virt-customize -a {} --run-command {}'.format(self.packages, customization))
-    def custom_config(self):
-    # run user scripts
-        print(self.customization)
+# class ImageCustomization:
+#     # Add custom packages
+#     def __init__(self, image_name, packages, customization):
+#         self.image_name = image_name
+#         self.packages = packages
+#         self.customization = customization
+#     def package_install(self):
+#         # print(self.packages)
+#         sp.call('virt-customize -a {} --run-command {}'.format(self.packages, customization))
+#     def custom_config(self):
+#     # run user scripts
+#         print(self.customization)
+
 
 def print_config(image_config):
         print('\nYAML loaded with the following specification:\n')
-	# Print YAML properties to terminal    Z
+        # Print YAML properties to terminal
         for key, value in image_config.items():
             print(str(key)+': ' + str(value))
-        return 
+        return
+
 
 def hash_image(image_name):
-    # Create hash value for image
+        # Create hash value for image
         file = image_name
         with open(file, 'rb') as file:
             content = file.read()
@@ -132,6 +148,7 @@ def hash_image(image_name):
         sha.update(content)
         hash_file = sha.hexdigest()
         print('\nImage SHA256 Hash: {}'.format(hash_file))
+
 
 # Specify template dir/file and load with yaml parser
 template_file = '../templates/ubuntu.yaml'
@@ -144,7 +161,7 @@ config_item = ParseYaml(image_config)
 # Prints build specification
 print_config(image_config)
 
-#Parses YAML configuration and sets variables for each item
+# Parses YAML configuration and sets variables for each item
 image_name = config_item.image_name()
 method = config_item.method()
 image_url = config_item.image_url()
@@ -155,30 +172,14 @@ packages = config_item.packages()
 customization = config_item.customization()
 
 
-if convert == True:
+if convert is True:
     qemubuild = QemuImgConvert(image_name, image_url, output_format)
     DownloadImage(image_url).download_image()
     DownloadImage(image_url).hash_download_image()
     qemubuild.qemu_convert()
 
-if customization == True:
-    customize_image = ImageCustomization(image_name, packages, customization)
-    customize_image.package_install()
-    customize_image.custom_config()
-
-if compressed == True:
-
-if compression == True:
-
-# elif method == 'virt-builder':
-
-# elif method == 'docker':
-
-# elif method == 'podman':
-
-
-
-
-
-
-
+# if customization == True:
+#     customize_image = ImageCustomization(image_name, packages, customization)
+#     customize_image.package_install()
+#     customize_image.custom_config()
+# if compressed == True:
