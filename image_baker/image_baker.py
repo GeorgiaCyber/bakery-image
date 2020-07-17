@@ -1,8 +1,11 @@
+import os
 import subprocess as sp
 import hashlib
 import yaml
 import requests
 from tqdm import tqdm
+from minio import Minio
+from minio.error import ResponseError
 
 
 class LoadYaml:
@@ -158,7 +161,27 @@ class CompressImage:
             sp.call("gzip -v {}".format(self.image_name), shell=True)
             sp.call("gzip -l {}".format(self.compressed_name), shell=True)
         elif self.compression == "bz2":
-            sp.call("bzip2 -v {}".format(self.image_name_), shell=True)
+            sp.call("bzip2 -v {}".format(self.image_name), shell=True)
+
+
+class UploadImage:
+    def __init__(self, compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniofilepath, miniobucket):
+        self.compressed_name = compressed_name
+        self.minioclientaddr = minioclientaddr
+        self.minioaccesskey = minioaccesskey
+        self.miniosecretkey = miniosecretkey
+        self.miniofilepath = miniofilepath
+        self.miniobucket = miniobucket
+        print('\nUploading {} to minio object store at {}...'.format(self.compressed_name, self.minioclientaddr))
+    
+    def uploadimagefile(self):
+        client = Minio(self.minioclientaddr, access_key=self.minioaccesskey, secret_key=self.miniosecretkey, secure=False)
+        try:
+            with open(self.compressed_name, 'rb') as file_data:
+                file_stat = os.stat(self.compressed_name)
+                client.put_object(self.miniobucket, self.compressed_name, file_data, file_stat.st_size)
+        except ResponseError as err:
+            print(err)
 
 
 def print_config(image_config):
@@ -177,8 +200,8 @@ def hash_image(image_name):
     sha = hashlib.sha256()
     sha.update(content)
     hash_file = sha.hexdigest()
-    print('\nImage SHA256 Hash: {}'.format(hash_file))
-
+    print('\nSHA256 Hash: {}'.format(hash_file))
+    
 
 # Specify template dir/file and load with yaml parser
 template_file = '../templates/ubuntu.yaml'
@@ -215,5 +238,13 @@ if customization:
 
 if compressed != None:
     compressed_name = "{}.{}".format(image_name, compression)
-    CompressImage(image_name, compression, compressed_name).compress()   
+    CompressImage(image_name, compression, compressed_name).compress()
     hash_image(compressed_name)
+
+compressed_name='ubuntu2004.xz'
+minioclientaddr='172.17.0.3:9000'
+minioaccesskey='ITSJUSTANEXAMPLE'
+miniosecretkey='EXAMPLEKEY'
+miniobucket='images'
+miniofilepath='.'
+UploadImage(compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniofilepath, miniobucket)
