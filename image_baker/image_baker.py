@@ -123,7 +123,7 @@ class QemuImgConvert:
         orig_format = file.split('.')[-1]
         new_filename = self.image_name
         print('\nConverting {} to {} format with qemu-img utility...'.format(file, self.output_format))
-        sp.call('qemu-img convert -f {} -O {} {} {} && rm {}'.format(orig_format, 
+        sp.call('qemu-img convert -f {} -O {} {} {} && rm {}'.format(orig_format,
         self.output_format, file, new_filename, file), shell=True)
 
 
@@ -199,6 +199,15 @@ def hash_image(image_name):
 template_file = '../templates/ubuntu.yaml'
 image_config = LoadYaml(template_file).load_yaml()
 
+# Minio variables
+compressed_name='ubuntu2004.xz'
+minioclientaddr='172.17.0.2:9000'
+minioaccesskey='ITSJUSTANEXAMPLE'
+miniosecretkey='EXAMPLEKEY'
+miniobucket='images'
+miniofilepath='.'
+
+
 # Associate keys with item variables
 config_item = ParseYaml(image_config)
 
@@ -232,12 +241,5 @@ if compression is not None:
     compressed_name = "{}.{}".format(image_name, compression)
     CompressImage(image_name, compression, compressed_name).compress()
     hash_image(compressed_name)
-
-compressed_name='ubuntu2004.xz'
-minioclientaddr='172.17.0.2:9000'
-minioaccesskey='ITSJUSTANEXAMPLE'
-miniosecretkey='EXAMPLEKEY'
-miniobucket='images'
-miniofilepath='.'
 
 uploadimagefile(compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket)
