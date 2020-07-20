@@ -1,0 +1,21 @@
+---
+
+image_name: centos8
+
+method: virt-builder
+
+image_url: https://cloud.centos.org/centos/8/x86_64/images/CentOS-8-GenericCloud-8.2.2004-20200611.2.x86_64.qcow2
+
+output_format: raw
+
+compress: true
+
+packages:
+    - ipcalc
+    - cmatrix
+    - fortune
+
+customization: |
+    - sed - i "s/ttyS0,115200/ttys0,115200 net.ifnames=1 biosdevname=1/" /etc/default/grub
+    - grub2-mkconfig -o /boot/grub2/grub.cfg
+    - mv /etc/sysconfig/network-scripts/ifcfg-eth0 /etc/sysconfig/network-scripts/ifcfg-ens3

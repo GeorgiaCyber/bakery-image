@@ -1,47 +1,55 @@
-images:
+---
+
+default:
+  image: gacybercenter/gacyber-lint:latest
   tags:
     - docker
-  image: gacybercenter/image-bakery:latest
+
+stages:
+  - Static Analysis
+  - Test
+  - Build
+
+mypy:
+  stage: Static Analysis
   script: |
-      ### quick test - make real format later using yaml descriptor
-      ### centos-8 amd64
-      time virt-builder centos-8.0 --selinux-relabel --install cloud-init --output centos8.raw
-      time xz -zT 0 centos8.raw
-      auth_string=$(echo -n $B2_APPLICATION_KEY_ID:$B2_APPLICATION_KEY|base64)
-      read auth_token apiUrl < <(echo $(curl -s https://api.backblazeb2.com/b2api/v2/b2_authorize_account -H "Authorization: Basic $auth_string" | jq -r '.authorizationToken, .apiUrl'))
-      read upload_auth_token uploadUrl < <(echo $(curl -s $apiUrl/b2api/v2/b2_get_upload_url -H "Authorization: $auth_token" -d '{"bucketId": "'"$B2_BAKERY_BUCKET_ID"'"}' | jq -r '.authorizationToken, .uploadUrl'))
-      curl -s -H "Authorization: $upload_auth_token" \
-      -H "X-Bz-File-Name: centos8.raw.xz" \
-      -H "Content-Type: application/octet-stream" \
-      -H "X-Bz-Content-Sha1: $(openssl dgst -sha1 centos8.raw.xz | awk '{print $2;}')" \
-      -H "X-Bz-Info-Author: unknown" \
-      --data-binary "@centos8.raw.xz" \
-      $uploadUrl
-      ### debian-lxqt amd64
-      time virt-builder debian-10 --install cloud-init,lxqt --output debian-lxqt.raw --run-command "sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub && update-grub"
-      time xz -zT 0 debian-lxqt.raw
-      auth_string=$(echo -n $B2_APPLICATION_KEY_ID:$B2_APPLICATION_KEY|base64)
-      read auth_token apiUrl < <(echo $(curl -s https://api.backblazeb2.com/b2api/v2/b2_authorize_account -H "Authorization: Basic $auth_string" | jq -r '.authorizationToken, .apiUrl'))
-      read upload_auth_token uploadUrl < <(echo $(curl -s $apiUrl/b2api/v2/b2_get_upload_url -H "Authorization: $auth_token" -d '{"bucketId": "'"$B2_BAKERY_BUCKET_ID"'"}' | jq -r '.authorizationToken, .uploadUrl'))
-      curl -s -H "Authorization: $upload_auth_token" \
-      -H "X-Bz-File-Name: debian-lxqt.raw.xz" \
-      -H "Content-Type: application/octet-stream" \
-      -H "X-Bz-Content-Sha1: $(openssl dgst -sha1 debian-lxqt.raw.xz | awk '{print $2;}')" \
-      -H "X-Bz-Info-Author: unknown" \
-      --data-binary "@debian-lxqt.raw.xz" \
-      $uploadUrl
-      ### ubuntu focal ppc64el
-      time curl -s -o focal-ppc64el.qcow2 https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-ppc64el.img
-      time qemu-img convert -f qcow2 -O raw focal-ppc64el.qcow2 focal-ppc64el.raw && rm focal-ppc64el.qcow2
-      time xz -zT 0 focal-ppc64el.raw
-      auth_string=$(echo -n $B2_APPLICATION_KEY_ID:$B2_APPLICATION_KEY|base64)
-      read auth_token apiUrl < <(echo $(curl -s https://api.backblazeb2.com/b2api/v2/b2_authorize_account -H "Authorization: Basic $auth_string" | jq -r '.authorizationToken, .apiUrl'))
-      read upload_auth_token uploadUrl < <(echo $(curl -s $apiUrl/b2api/v2/b2_get_upload_url -H "Authorization: $auth_token" -d '{"bucketId": "'"$B2_BAKERY_BUCKET_ID"'"}' | jq -r '.authorizationToken, .uploadUrl'))
-      curl -s -H "Authorization: $upload_auth_token" \
-      -H "X-Bz-File-Name: focal-ppc64el.raw.xz" \
-      -H "Content-Type: application/octet-stream" \
-      -H "X-Bz-Content-Sha1: $(openssl dgst -sha1 focal-ppc64el.raw.xz | awk '{print $2;}')" \
-      -H "X-Bz-Info-Author: unknown" \
-      --data-binary "@focal-ppc64el.raw.xz" \
-      $uploadUrl
-      
+    pwd
+    ls -l
+    python3 -m mypy ./image_baker --ignore-missing-imports
+  allow_failure: true
+
+flake8:
+  stage: Static Analysis
+  script: |
+    flake8 --max-line-length=120 ./image_baker
+  allow_failure: true
+
+pylint:
+  stage: Static Analysis
+  script: |
+    pylint -d C0301 ./image_baker
+  allow_failure: true
+
+yamllint:
+  stage: Static Analysis
+  script: |
+    yamllint -c .yamllint.yml  .
+  allow_failure: true
+
+dockerlint:
+  stage: Static Analysis
+  script: |
+    dockerlint
+  allow_failure: true
+
+# convert_uncompress:
+#   stage: Build
+#   script: |
+#       python3 scripts/image_base.py
+#   allow_failure: true
+
+# modification:
+#   stage: Build
+#   script: |
+#       python3 scripts/image_mod.py
+#   allow_failure: true
