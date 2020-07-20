@@ -163,25 +163,16 @@ class CompressImage:
         elif self.compression == "bz2":
             sp.call("bzip2 -v {}".format(self.image_name), shell=True)
 
-
-class UploadImage:
-    def __init__(self, compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniofilepath, miniobucket):
-        self.compressed_name = compressed_name
-        self.minioclientaddr = minioclientaddr
-        self.minioaccesskey = minioaccesskey
-        self.miniosecretkey = miniosecretkey
-        self.miniofilepath = miniofilepath
-        self.miniobucket = miniobucket
-        print('\nUploading {} to minio object store at {}...'.format(self.compressed_name, self.minioclientaddr))
-    
-    def uploadimagefile(self):
-        client = Minio(self.minioclientaddr, access_key=self.minioaccesskey, secret_key=self.miniosecretkey, secure=False)
-        try:
-            with open(self.compressed_name, 'rb') as file_data:
-                file_stat = os.stat(self.compressed_name)
-                client.put_object(self.miniobucket, self.compressed_name, file_data, file_stat.st_size)
-        except ResponseError as err:
-            print(err)
+  
+def uploadimagefile(compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket):
+    print('\nUploading {} to minio object store at {}...'.format(compressed_name, minioclientaddr))
+    client = Minio(minioclientaddr, access_key=minioaccesskey, secret_key=miniosecretkey, secure=False)
+    try:
+        with open(compressed_name, 'rb') as file_data:
+            file_stat = os.stat(compressed_name)
+            client.put_object(miniobucket, compressed_name, file_data, file_stat.st_size)
+    except ResponseError as err:
+        print(err)
 
 
 def print_config(image_config):
@@ -236,15 +227,16 @@ if customization:
     customize_image.package_install()
     customize_image.custom_config()
 
-if compressed != None:
+if compression != None:
     compressed_name = "{}.{}".format(image_name, compression)
     CompressImage(image_name, compression, compressed_name).compress()
     hash_image(compressed_name)
 
 compressed_name='ubuntu2004.xz'
-minioclientaddr='172.17.0.3:9000'
+minioclientaddr='172.17.0.2:9000'
 minioaccesskey='ITSJUSTANEXAMPLE'
 miniosecretkey='EXAMPLEKEY'
 miniobucket='images'
 miniofilepath='.'
-UploadImage(compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniofilepath, miniobucket)
+
+uploadimagefile(compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket)
