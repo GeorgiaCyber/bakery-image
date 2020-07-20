@@ -123,7 +123,8 @@ class QemuImgConvert:
         orig_format = file.split('.')[-1]
         new_filename = self.image_name
         print('\nConverting {} to {} format with qemu-img utility...'.format(file, self.output_format))
-        sp.call('qemu-img convert -f {} -O {} {} {} && rm {}'.format(orig_format, self.output_format,file, new_filename, file), shell=True)
+        sp.call('qemu-img convert -f {} -O {} {} {} && rm {}'.format(orig_format, 
+        self.output_format, file, new_filename, file), shell=True)
 
 
 class ImageCustomization:
@@ -132,16 +133,16 @@ class ImageCustomization:
         self.image_name = image_name
         self.packages = packages
         self.customization = customization
-        
+
     def package_install(self):
         # update package cache
         sp.call('virt-customize -a {} --update'.format(self.image_name), shell=True)
         # iterate through items in package list and perform install
         for package in self.packages:
             sp.call('virt-customize -a {} --install {}'.format(self.image_name, package), shell=True)
-    
+
     def custom_config(self):
-    # run user scripts
+        # run user scripts
         for item in self.customization:
             sp.call("virt-customize -a {} --run-command '{}'".format(self.image_name, item), shell=True)
 
@@ -163,7 +164,7 @@ class CompressImage:
         elif self.compression == "bz2":
             sp.call("bzip2 -v {}".format(self.image_name), shell=True)
 
-  
+
 def uploadimagefile(compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket):
     print('\nUploading {} to minio object store at {}...'.format(compressed_name, minioclientaddr))
     client = Minio(minioclientaddr, access_key=minioaccesskey, secret_key=miniosecretkey, secure=False)
@@ -227,7 +228,7 @@ if customization:
     customize_image.package_install()
     customize_image.custom_config()
 
-if compression != None:
+if compression is not None:
     compressed_name = "{}.{}".format(image_name, compression)
     CompressImage(image_name, compression, compressed_name).compress()
     hash_image(compressed_name)
