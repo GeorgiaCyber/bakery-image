@@ -8,6 +8,8 @@ image_url: https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-a
 
 compressed: false
 
+input_format: qcow2
+
 output_format: raw
 
 compression: xz
