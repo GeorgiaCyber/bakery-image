@@ -1,15 +1,14 @@
-import yaml
+from yaml import safe_load
 
 
 class LoadYaml:
-    def __init__(self, template_file):
-        self.template_file = template_file
-        # self.build_method = build_method
+    def __init__(self, template):
+        self.template = template
 
     def load_yaml(self):
         # Loads a yaml file
-        with open(self.template_file, "r") as file_descriptor:
-            data = yaml.safe_load(file_descriptor,)
+        with open(self.template, "r") as file_descriptor:
+            data = safe_load(file_descriptor,)
         return data
 
 
