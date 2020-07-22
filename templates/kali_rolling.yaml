@@ -1,0 +1,32 @@
+---
+
+image_name: debian10_lxqt
+
+image_url: https://cdimage.debian.org/cdimage/openstack/current/debian-10.4.3-20200610-openstack-amd64.qcow2
+
+compressed: false
+
+convert: true
+
+input_format: qcow2
+
+output_format: raw
+
+compression: xz
+
+method: virt-customize
+
+packages:
+    - wget
+    - gnupg
+    - dirmngr
+
+customization: |
+    #!/bin/bash
+    wget -q -O - https://archive.kali.org/archive-key.asc | gpg --import
+    gpg --keyserver hkp://keys.gnupg.net --recv-key 44C6513A8E4FB3D30875F758ED444FF07D8D0BF6
+    echo "deb http://http.kali.org/kali kali-rolling main non-free contrib" >> /etc/apt/sources.list
+    gpg -a --export ED444FF07D8D0BF6 | sudo apt-key add -
+    apt -y update 
+    apt -y install kali-desktop-lxde
+    echo blacklist qxl > /etc/modprobe.d/qxl.conf

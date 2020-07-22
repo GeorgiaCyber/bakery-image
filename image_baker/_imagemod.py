@@ -64,7 +64,8 @@ class ImageCustomize():
             create_user_script(self.customization)
             user_script = open('user_script.sh', 'r').read()
             print('\nApplying the following user script:\n {}'.format(user_script))
-            call('virt-builder -v {} --update --install {} --run user_script.sh --output {} --format {}'.format(self.image_name, self.packages, self.image_name, self.output_format), shell=True)      
+            call('virt-builder -v {} --update --install {} --run user_script.sh \
+                 --format {} --output {}'.format(self.image_name, self.packages, self.output_format, self.image_name), shell=True)      
 
 
 class ImageCompress:
