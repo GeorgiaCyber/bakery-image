@@ -1,7 +1,7 @@
 from yaml import safe_load
 
 
-class LoadYaml:
+class YamlLoad:
     def __init__(self, template):
         self.template = template
 
@@ -12,7 +12,7 @@ class LoadYaml:
         return data
 
 
-class ParseYaml:
+class YamlParse:
     def __init__(self, image_config):
         self.image_config = image_config
 
