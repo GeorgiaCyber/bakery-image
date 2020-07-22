@@ -1,6 +1,6 @@
 from os import scandir
 from image_baker._yamlparse import YamlLoad, YamlParse, print_config
-from image_baker._imagemod import ImageConvert, ImageCustomize, ImageCompress, hash_image
+from image_baker._imagemod import ImageConvert, ImageCustomize, ImageCompress, hash_image, create_user_script
 from image_baker._imagetransfer import ImageDownload, ImageUpload
 
 
@@ -31,7 +31,7 @@ with scandir('./templates/') as templates:
         compressed_name = "{}.{}".format(image_name, compression)
 
         # Minio variables
-        minioclientaddr = '172.17.0.2:9000'
+        minioclientaddr = '172.17.0.4:9000'
         minioaccesskey = 'ITSJUSTANEXAMPLE'
         miniosecretkey = 'EXAMPLEKEY'
         miniobucket = 'images'
