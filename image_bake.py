@@ -39,23 +39,30 @@ with scandir('./templates/') as templates:
 
         # Assigns configuration item variables for each class method used.
         convert_image = ImageConvert(image_name, image_url, input_format, output_format)
-        customize_image = ImageCustomize(image_name, packages, customization)
+        customize_image = ImageCustomize(image_name, packages, customization, method, output_format)
+        compress_image = ImageCompress(image_name, compression, compressed_name)
         upload_image = ImageUpload(compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket)
 
 
-        if convert is True:
-            # Determines if image needs to be converted to different format (raw, qcow2, etc.)
+        if image_url:
             ImageDownload(image_url).download_image()
             ImageDownload(image_url).hash_download_image()
+
+        if convert is True and method == 'virt-builder':
+            # Determines if image needs to be converted to different format with virt-builder utility(raw, qcow2, etc.)
+            customize_image.build_method()
+
+        if convert is True and method == 'virt-customize':
+            # Determines if image needs to be converted to different format with qemu-img utility(raw, qcow2, etc.)
             convert_image.qemu_convert()
 
         if customization:
             # Determines if image needs customization and what utility to use for customization (virt-customize if not virt-builder)
-            customize_image.virt_customize()
+            customize_image.build_method()
 
         if compression:
             # Determinese if image needs to be compressed based on format specified (xz, gz, bz2)
-            ImageCompress(image_name, compression, compressed_name).compress()
+            compress_image.compress()
             hash_image(compressed_name)
 
         # Uploads image to minio

@@ -3,6 +3,22 @@ from subprocess import call
 import hashlib
 
 
+def hash_image(image_name):
+    # Create hash value for image
+    file = image_name
+    with open(file, 'rb') as file:
+        content = file.read()
+    sha = hashlib.sha256()
+    sha.update(content)
+    hash_file = sha.hexdigest()
+    print('\nSHA256 Hash: {}'.format(hash_file))
+
+def create_user_script(customization):
+    # creates custom user script file
+    create_script = open('user_script.sh', 'w')
+    create_script.write(customization)
+    create_script.close()
+
 class ImageConvert:
     def __init__(self, image_name, image_url, input_format, output_format):
         #  Set all common variables for the ImageConvert class
@@ -10,7 +26,6 @@ class ImageConvert:
         self.image_url = image_url
         self.input_format = input_format        
         self.output_format = output_format
-
 
     def qemu_convert(self):
         #  Perform qemu image conversion for format type specified
@@ -22,28 +37,35 @@ class ImageConvert:
 
 
 class ImageCustomize():
-    def __init__(self, image_name, packages, customization):
+    def __init__(self, image_name, packages, customization, method, output_format):
          # Set all common variables for the ImageCustomizatoin class
         self.image_name = image_name
         self.packages = ",".join(packages)
         self.customization = customization
+        self.method = method
+        self.output_format = output_format
 
-    def virt_customize(self):
-        print('\nCustomizing {} image with virt-customize utility...\n'.format(self.image_name))
-        print('\nInstalling the following packages: {}\n'.format(self.packages))
-        # creates custom user script ran via CLI in virtcustomize
-        create_user_script(self.customization)
-        user_script = open('user_script.sh', 'r')
-        print('\nApplying the following user script:\n {}'.format(print(user_script.read())))
-        # update package cache and install packages
-        call('virt-customize -a {} -update --install {} --run user_script.sh'.format(self.image_name, self.packages), shell=True)
-        remove('user_script.sh')
+    def build_method(self):
+        if self.method == 'virt-customize':
+            print('\nCustomizing {} image with virt-customize utility...\n'.format(self.image_name))
+            print('\nInstalling the following packages: {}\n'.format(self.packages))
+            # creates custom user script ran via CLI in virtcustomize
+            create_user_script(self.customization)
+            user_script = open('user_script.sh', 'r').read()
+            print('\nApplying the following user script:\n {}'.format(user_script))
+            # update package cache and install packages
+            call('virt-customize -a {} -update --install {} --run user_script.sh'.format(self.image_name, self.packages), shell=True)
+            remove('user_script.sh')
+        elif self.method == 'virt-builder':
+            # update package cache and install packages
+            print('\nCustomizing {} image with virt-builder utility...'.format(self.image_name))
+            print('\nInstalling the following packages: {}\n'.format(self.packages))
+            # creates custom user script ran via CLI in virtcustomize
+            create_user_script(self.customization)
+            user_script = open('user_script.sh', 'r').read()
+            print('\nApplying the following user script:\n {}'.format(user_script))
+            call('virt-builder -v {} --update --install {} --run user_script.sh --output {} --format {}'.format(self.image_name, self.packages, self.image_name, self.output_format), shell=True)      
 
- 
-    # def virt_builder(self):
-    #     # update package cache and install packages
-    #     print('\nCustomizing {} image with virt-builder utility...'.format(self.image_name))
-    #     call('virt-builder {} --update --install {} --output {} --run-command {}'.format(self.image_name, self.packages, self.customization), shell=True)      
 
 class ImageCompress:
     def __init__(self, image_name, compression, compressed_name):
@@ -61,19 +83,3 @@ class ImageCompress:
             call("gzip -l {}".format(self.compressed_name), shell=True)
         elif self.compression == "bz2":
             call("bzip2 -v {}".format(self.image_name), shell=True)
-
-def hash_image(image_name):
-    # Create hash value for image
-    file = image_name
-    with open(file, 'rb') as file:
-        content = file.read()
-    sha = hashlib.sha256()
-    sha.update(content)
-    hash_file = sha.hexdigest()
-    print('\nSHA256 Hash: {}'.format(hash_file))
-
-def create_user_script(customization):
-    # creates custom user script file
-    create_script = open('user_script.sh', 'w')
-    create_script.write(customization)
-    create_script.close()

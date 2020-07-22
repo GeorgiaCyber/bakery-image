@@ -36,6 +36,7 @@ class ImageDownload:
         hash_file = sha.hexdigest()
         print('\nImage SHA256 Hash: {}'.format(hash_file))
 
+
 class ImageUpload:
     def __init__(self, compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket):
         self.compressed_name = compressed_name
