@@ -1,31 +1,21 @@
 from os import scandir
-from image_baker._yamlparse import LoadYaml, ParseYaml, print_config
-from image_baker._imagemod import QemuImgConvert, ImageCustomization, hash_image
-from image_baker._imagetransfer import DownloadImage, CompressImage, UploadImage
+from image_baker._yamlparse import YamlLoad, YamlParse, print_config
+from image_baker._imagemod import ImageConvert, ImageCustomize, ImageCompress, hash_image, create_user_script
+from image_baker._imagetransfer import ImageDownload, ImageUpload
 
 
 # Creates list of files in template directory
-
-
 with scandir('./templates/') as templates:
     for template in templates:
-        # Specify template dir/file and load with yaml parser
-        image_config = LoadYaml(template).load_yaml()
-
-        # Minio variables
-        minioclientaddr = '172.17.0.2:9000'
-        minioaccesskey = 'ITSJUSTANEXAMPLE'
-        miniosecretkey = 'EXAMPLEKEY'
-        miniobucket = 'images'
-        miniofilepath = '.'
-
-        # Associate keys with item variables
-        config_item = ParseYaml(image_config)
-
+        # Loads YAML specification for template file
+        image_config = YamlLoad(template).load_yaml()
         # Prints build specification
         print_config(image_config)
 
-        # Parses YAML configuration and sets variables for each item
+        # Parses YAML for configuration items
+        config_item = YamlParse(image_config)
+
+        # Assigns each configuration item to a variable
         image_name = config_item.image_name()
         method = config_item.method()
         image_url = config_item.image_url()
@@ -37,23 +27,45 @@ with scandir('./templates/') as templates:
         customization = config_item.customization()
         compression = config_item.compression()
 
-        qemubuild = QemuImgConvert(image_name, image_url, input_format, output_format)
-        customize_image = ImageCustomization(image_name, packages, customization)
+        # Sets compressed name from compression format and image name variables
         compressed_name = "{}.{}".format(image_name, compression)
-        imageupload = UploadImage(compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket)
 
-        if convert is True:
-            DownloadImage(image_url).download_image()
-            DownloadImage(image_url).hash_download_image()
-            qemubuild.qemu_convert()
+        # Minio variables
+        minioclientaddr = '172.17.0.4:9000'
+        minioaccesskey = 'ITSJUSTANEXAMPLE'
+        miniosecretkey = 'EXAMPLEKEY'
+        miniobucket = 'images'
+        miniofilepath = '.'
+
+        # Assigns configuration item variables for each class method used.
+        convert_image = ImageConvert(image_name, image_url, input_format, output_format)
+        customize_image = ImageCustomize(image_name, packages, customization, method, output_format)
+        compress_image = ImageCompress(image_name, compression, compressed_name)
+        upload_image = ImageUpload(compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket)
+
+
+        if image_url:
+            ImageDownload(image_url).download_image()
+            ImageDownload(image_url).hash_download_image()
+
+        if convert is True and method == 'virt-builder':
+            # Determines if image needs to be converted to different format with virt-builder utility(raw, qcow2, etc.)
+            customize_image.build_method()
+
+        if convert is True and method == 'virt-customize':
+            # Determines if image needs to be converted to different format with qemu-img utility(raw, qcow2, etc.)
+            convert_image.qemu_convert()
 
         if customization:
-            customize_image.package_install()
-            customize_image.custom_config()
+            # Determines if image needs customization and what utility to use for customization (virt-customize if not virt-builder)
+            customize_image.build_method()
 
-        if compression is not None:
-            CompressImage(image_name, compression, compressed_name).compress()
+        if compression:
+            # Determinese if image needs to be compressed based on format specified (xz, gz, bz2)
+            compress_image.compress()
             hash_image(compressed_name)
 
-        imageupload.uploadimagefile()
+        # Uploads image to minio
+        upload_image.uploadimagefile()
 
+        # Print hashes for image original download, modification, and compression.

@@ -1,6 +1,6 @@
 ---
 
-image_name: centos-8.0
+image_name: ubuntu-16.04
 
 compressed: false
 
