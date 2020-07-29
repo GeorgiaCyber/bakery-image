@@ -51,8 +51,8 @@ simple_test:
     ip a 
     ss -antp
     apt install netcat -y
-    echo -ne '\n' | nc 8.8.8.8 443
-    echo -ne '\n' | nc $TEST_ADDR_MINIO 9000
+    echo -ne '\n' | nc –vv –u 8.8.8.8 53
+    echo -ne '\n' | nc $TEST_ADDR_MINIO -p 9000
   allow_failure: true
     
 # miniotest:
