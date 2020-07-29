@@ -44,7 +44,6 @@ stages:
    
 miniotest:
   stage: Test
-  image: debian:latest
   tags:
     - docker
   script: |
