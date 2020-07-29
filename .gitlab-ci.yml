@@ -50,11 +50,9 @@ simple_test:
     echo "*** TESTING ***"
     ip a 
     ss -antp
-    apt install netcat -y
-    nc -l -vv -p 1111
-    echo -ne '\n' | nc -vv -l -p 1111 &
-    echo -ne '\n' | nc -vv 127.0.0.1 1111
     # echo -ne '\n' | nc $TEST_ADDR_MINIO -p 9000
+    echo $TEST_ADDR_MINIO > test.txt
+    cat test.txt
   allow_failure: true
     
 # miniotest:
