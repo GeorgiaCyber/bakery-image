@@ -6,52 +6,62 @@ default:
     - docker
 
 stages:
-  # - Static Analysis
+  - Static Analysis
   - Test
-  # - Build
+  - Build
 
-# mypy:
-#   stage: Static Analysis
-#   script: |
-#     pwd
-#     ls -l
-#     python3 -m mypy ./image_baker --ignore-missing-imports
-#   allow_failure: true
+stages:
+  - Static Analysis
+  - Test
+  - Build
 
-# flake8:
-#   stage: Static Analysis
-#   script: |
-#     flake8 --max-line-length=120 ./image_baker
-#   allow_failure: true
-
-# pylint:
-#   stage: Static Analysis
-#   script: |
-#     pylint -d C0301 ./image_baker
-#   allow_failure: true
-
-# yamllint:
-#   stage: Static Analysis
-#   script: |
-#     yamllint -c .yamllint.yml  .
-#   allow_failure: true
-
-# dockerlint:
-#   stage: Static Analysis
-#   script: |
-#     dockerlint
-#   allow_failure: true
-   
-miniotest:
-  stage: Test
-  tags:
-    - docker
+mypy:
+  stage: Static Analysis
   script: |
-    apt-get install wget -y
-    wget https://dl.min.io/client/mc/release/linux-amd64/mc
-    chmod +x mc
-    ./mc --version
-    ./mc config host add myminio $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
-    ./mc mb myminio/images
-    ./mc ls myminio
+    pwd
+    ls -l
+    python3 -m mypy ./image_baker --ignore-missing-imports
   allow_failure: true
+
+flake8:
+  stage: Static Analysis
+  script: |
+    flake8 --max-line-length=120 ./image_baker
+  allow_failure: true
+
+pylint:
+  stage: Static Analysis
+  script: |
+    pylint -d C0301 ./image_baker
+  allow_failure: true
+
+yamllint:
+  stage: Static Analysis
+  script: |
+    yamllint -c .yamllint.yml  .
+  allow_failure: true
+
+dockerlint:
+  stage: Static Analysis
+  script: |
+    dockerlint
+
+build:
+  image: gacybercenter/image-bakery:latest
+  stage: Build
+  script: |
+    python3 image_bake.py $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
+
+# miniotest:
+#   stage: Test
+#   tags:
+#     - docker
+#   script: |
+#     apt-get install wget -y
+#     wget https://dl.min.io/client/mc/release/linux-amd64/mc
+#     chmod +x mc
+#     ./mc --version
+#     ./mc config host add myminio $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
+#     ./mc mb myminio/images
+#     ./mc ls myminio
+#   allow_failure: true
