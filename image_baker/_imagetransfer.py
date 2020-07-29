@@ -38,7 +38,8 @@ class ImageDownload:
 
 
 class ImageUpload:
-    def __init__(self, compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket):
+    def __init__(self, image_name, compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket):
+        self.image_name = image_name
         self.compressed_name = compressed_name
         self.minioclientaddr = minioclientaddr
         self.minioaccesskey = minioaccesskey
@@ -56,3 +57,4 @@ class ImageUpload:
         except ResponseError as err:
             print(err)
         remove(self.compressed_name)
+        remove(self.image_name)

@@ -8,16 +8,16 @@ convert: true
 
 output_format: raw
 
-compression: xz
+compression: gz
 
 method: virt-builder
 
 packages:
-    - docker-ce
     - tcpdump
+    - nmap
 
 customization: |
     #!/bin/bash
-    sed - i "s/ttyS0,115200/ttys0,115200 net.ifnames=1 biosdevname=1/" /etc/default/grub
+    sed -i "s/ttyS0,115200/ttys0,115200 net.ifnames=1 biosdevname=1/" /etc/default/grub
     grub2-mkconfig -o /boot/grub2/grub.cfg
-    mv /etc/sysconfig/network-scripts/ifcfg-eth0 /etc/sysconfig/network-scripts/ifcfg-ens3
+    echo "customization completed via virt-customize" > ./custom.txt

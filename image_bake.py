@@ -31,7 +31,7 @@ with scandir('./templates/') as templates:
         compressed_name = "{}.{}".format(image_name, compression)
 
         # Minio variables
-        minioclientaddr = '172.17.0.4:9000'
+        minioclientaddr = '172.17.0.3:9000'
         minioaccesskey = 'ITSJUSTANEXAMPLE'
         miniosecretkey = 'EXAMPLEKEY'
         miniobucket = 'images'
@@ -41,7 +41,7 @@ with scandir('./templates/') as templates:
         convert_image = ImageConvert(image_name, image_url, input_format, output_format)
         customize_image = ImageCustomize(image_name, packages, customization, method, output_format)
         compress_image = ImageCompress(image_name, compression, compressed_name)
-        upload_image = ImageUpload(compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket)
+        upload_image = ImageUpload(image_name, compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket)
 
 
         if image_url:
@@ -55,9 +55,6 @@ with scandir('./templates/') as templates:
         if convert is True and method == 'virt-customize':
             # Determines if image needs to be converted to different format with qemu-img utility(raw, qcow2, etc.)
             convert_image.qemu_convert()
-
-        if customization:
-            # Determines if image needs customization and what utility to use for customization (virt-customize if not virt-builder)
             customize_image.build_method()
 
         if compression:
