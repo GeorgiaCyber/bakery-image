@@ -50,9 +50,7 @@ simple_test:
     echo "*** TESTING ***"
     ip a 
     ss -antp
-    # echo -ne '\n' | nc $TEST_ADDR_MINIO -p 9000
-    echo $TEST_ADDR_MINIO > test.txt
-    cat test.txt
+    echo -ne '\n' | nc 10.0.1.198 9000
   allow_failure: true
     
 # miniotest:
