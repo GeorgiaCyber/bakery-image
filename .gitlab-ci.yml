@@ -6,50 +6,64 @@ default:
     - docker
 
 stages:
-  - Static Analysis
+  # - Static Analysis
   - Test
-  - Build
+  # - Build
 
-mypy:
-  stage: Static Analysis
-  script: |
-    pwd
-    ls -l
-    python3 -m mypy ./image_baker --ignore-missing-imports
-  allow_failure: true
-
-flake8:
-  stage: Static Analysis
-  script: |
-    flake8 --max-line-length=120 ./image_baker
-  allow_failure: true
-
-pylint:
-  stage: Static Analysis
-  script: |
-    pylint -d C0301 ./image_baker
-  allow_failure: true
-
-yamllint:
-  stage: Static Analysis
-  script: |
-    yamllint -c .yamllint.yml  .
-  allow_failure: true
-
-dockerlint:
-  stage: Static Analysis
-  script: |
-    dockerlint
-  allow_failure: true
-
-# convert_uncompress:
-#   stage: Build
+# mypy:
+#   stage: Static Analysis
 #   script: |
-#       python3 scripts/image_base.py
+#     pwd
+#     ls -l
+#     python3 -m mypy ./image_baker --ignore-missing-imports
 #   allow_failure: true
 
-# modification:
-#   stage: Build
+# flake8:
+#   stage: Static Analysis
 #   script: |
-#       python3 scripts/image_mod.py
+#     flake8 --max-line-length=120 ./image_baker
+#   allow_failure: true
+
+# pylint:
+#   stage: Static Analysis
+#   script: |
+#     pylint -d C0301 ./image_baker
+#   allow_failure: true
+
+# yamllint:
+#   stage: Static Analysis
+#   script: |
+#     yamllint -c .yamllint.yml  .
+#   allow_failure: true
+
+# dockerlint:
+#   stage: Static Analysis
+#   script: |
+#     dockerlint
+#   allow_failure: true
+
+simple_test:
+  stage: Test
+  tags:
+    - docker
+  script: |
+    echo "*** TESTING ***"
+    # ip a 
+    # ss -antp
+    # apt-get install netcat -y
+    # echo -ne '\n' | nc 10.0.1.198 9000
+    echo $MINIO_ADDR
+    echo "**** TEST FINISHED ****"
+  allow_failure: true
+    
+# miniotest:
+#   stage: Test
+#   image: minio/mc:latest
+#   tags:
+#     - docker
+#   script: |
+#     mc --version
+#     mc config host add myminio $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
+#     mc mb myminio/images
+#     mc ls myminio
 #   allow_failure: true
