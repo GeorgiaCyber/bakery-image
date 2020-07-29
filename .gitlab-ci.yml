@@ -41,29 +41,15 @@ stages:
 #   script: |
 #     dockerlint
 #   allow_failure: true
-
-simple_test:
+   
+miniotest:
   stage: Test
+  image: minio/mc:latest
   tags:
     - docker
   script: |
-    echo "*** TESTING ***"
-    # ip a 
-    # ss -antp
-    # apt-get install netcat -y
-    # echo -ne '\n' | nc 10.0.1.198 9000
-    echo $MINIO_ADDR
-    echo "**** TEST FINISHED ****"
+    mc --version
+    mc config host add myminio $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
+    mc mb myminio/images
+    mc ls myminio
   allow_failure: true
-    
-# miniotest:
-#   stage: Test
-#   image: minio/mc:latest
-#   tags:
-#     - docker
-#   script: |
-#     mc --version
-#     mc config host add myminio $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
-#     mc mb myminio/images
-#     mc ls myminio
-#   allow_failure: true
