@@ -43,7 +43,11 @@ dockerlint:
   allow_failure: true
 
 build:
+  image: gophernet/netcat:latest
+  tags:
+    - docker
   stage: Build
   script: |
-    ss -antp
+    nc localhost:9000
+    echo -e "\n"
   allow_failure: true
