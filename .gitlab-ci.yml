@@ -42,12 +42,12 @@ dockerlint:
     dockerlint
   allow_failure: true
 
-build:
-  image: gophernet/netcat:latest
+miniotest:
+  stage: Test
+  image: minio/mc:latest
   tags:
-    - docker
-  stage: Build
+    - minioclient
   script: |
-    nc 127.0.0.1 -p 9000
-    echo -e "\n"
+    mc config host add myminio $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
+    mc mb images
   allow_failure: true
