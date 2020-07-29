@@ -44,14 +44,13 @@ stages:
 
 simple_test:
   stage: Test
-  image: debian:latest
   tags:
     - docker
   script: |
     echo "*** TESTING ***"
     ip a 
     ss -antp
-    apt install netcat
+    apt install netcat -y
     echo -ne '\n' | nc $TEST_ADDR_MINIO 9000
     
 # miniotest:
