@@ -10,11 +10,6 @@ stages:
   - Test
   - Build
 
-stages:
-  - Static Analysis
-  - Test
-  - Build
-
 mypy:
   stage: Static Analysis
   script: |
