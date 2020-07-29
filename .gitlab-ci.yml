@@ -6,41 +6,41 @@ default:
     - docker
 
 stages:
-  - Static Analysis
+  # - Static Analysis
   - Test
-  - Build
+  # - Build
 
-mypy:
-  stage: Static Analysis
-  script: |
-    pwd
-    ls -l
-    python3 -m mypy ./image_baker --ignore-missing-imports
-  allow_failure: true
+# mypy:
+#   stage: Static Analysis
+#   script: |
+#     pwd
+#     ls -l
+#     python3 -m mypy ./image_baker --ignore-missing-imports
+#   allow_failure: true
 
-flake8:
-  stage: Static Analysis
-  script: |
-    flake8 --max-line-length=120 ./image_baker
-  allow_failure: true
+# flake8:
+#   stage: Static Analysis
+#   script: |
+#     flake8 --max-line-length=120 ./image_baker
+#   allow_failure: true
 
-pylint:
-  stage: Static Analysis
-  script: |
-    pylint -d C0301 ./image_baker
-  allow_failure: true
+# pylint:
+#   stage: Static Analysis
+#   script: |
+#     pylint -d C0301 ./image_baker
+#   allow_failure: true
 
-yamllint:
-  stage: Static Analysis
-  script: |
-    yamllint -c .yamllint.yml  .
-  allow_failure: true
+# yamllint:
+#   stage: Static Analysis
+#   script: |
+#     yamllint -c .yamllint.yml  .
+#   allow_failure: true
 
-dockerlint:
-  stage: Static Analysis
-  script: |
-    dockerlint
-  allow_failure: true
+# dockerlint:
+#   stage: Static Analysis
+#   script: |
+#     dockerlint
+#   allow_failure: true
 
 miniotest:
   stage: Test
@@ -48,7 +48,8 @@ miniotest:
   tags:
     - docker
   script: |
-    mc --version
+    echo "DOES THIS WORK?"
+    # mc --version
     # mc config host add myminio $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
     # mc mb myminio/images
     # mc ls myminio
