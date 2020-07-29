@@ -48,6 +48,6 @@ build:
     - docker
   stage: Build
   script: |
-    nc localhost 9000
+    nc 127.0.0.1 -p 9000
     echo -e "\n"
   allow_failure: true
