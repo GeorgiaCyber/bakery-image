@@ -1,7 +1,10 @@
 from os import remove
 from subprocess import call
+from shutil import copyfileobj
 import hashlib
-
+import lzma
+import gzip
+import bz2
 
 def hash_image(image_name):
     # Create hash value for image
@@ -19,16 +22,17 @@ def create_user_script(customization):
     create_script.write(customization)
     create_script.close()
 
+
 class ImageConvert:
     def __init__(self, image_name, image_url, input_format, output_format):
-        #  Set all common variables for the ImageConvert class
+        # Set all common variables for the ImageConvert class
         self.image_name = image_name
         self.image_url = image_url
         self.input_format = input_format        
         self.output_format = output_format
 
     def qemu_convert(self):
-        #  Perform qemu image conversion for format type specified
+        # Perform qemu image conversion for format type specified
         file = self.image_url.split('/')[-1]
         print('\nConverting {} to {} format with qemu-img utility...'.format(file, self.output_format))
         call('qemu-img convert -f {} -O {} {} {}'.format(self.input_format,
@@ -38,7 +42,7 @@ class ImageConvert:
 
 class ImageCustomize():
     def __init__(self, image_name, packages, customization, method, output_format):
-         # Set all common variables for the ImageCustomizatoin class
+        # Set all common variables for the ImageCustomizatoin class
         self.image_name = image_name
         self.packages = ",".join(packages)
         self.customization = customization
@@ -73,14 +77,15 @@ class ImageCompress:
         self.image_name = image_name
         self.compression = compression
         self.compressed_name = compressed_name
-        print('\nCompressing image using {} method...'.format(self.compression))
-
+    
     def compress(self):
-        if self.compression == "xz":
-            call("xz -vzT 0 {}".format(self.image_name), shell=True)
-            call("xz -l {}".format(self.compressed_name), shell=True)
-        elif self.compression == "gz":
-            call("gzip -v {}".format(self.image_name), shell=True)
-            call("gzip -l {}".format(self.compressed_name), shell=True)
+        print('\nCompressing image using {} method....'.format(self.compression))
+        if self.compression == "gz":
+            with open(self.image_name, 'rb') as file_in, gzip.open(self.compressed_name, 'wb') as file_out:
+                copyfileobj(file_in, file_out)
         elif self.compression == "bz2":
-            call("bzip2 -v {}".format(self.image_name), shell=True)
+            with open(self.image_name, 'rb') as file_in, bz2.open(self.compressed_name, 'wb') as file_out:
+                copyfileobj(file_in, file_out)
+        else:
+            with open(self.image_name, 'rb') as file_in, lzma.open(self.compressed_name, 'wb') as file_out:
+                copyfileobj(file_in, file_out)
