@@ -52,7 +52,7 @@ simple_test:
     ss -antp
     apt install netcat -y
     nc -l -vv -p 1111
-    echo TEST_TEST_TEST | nc -vv -l -p 1111 &
+    echo -ne '\n' | nc -vv -l -p 1111 &
     echo -ne '\n' | nc -vv 127.0.0.1 1111
     # echo -ne '\n' | nc $TEST_ADDR_MINIO -p 9000
   allow_failure: true
