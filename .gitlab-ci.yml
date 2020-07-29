@@ -42,14 +42,8 @@ dockerlint:
     dockerlint
   allow_failure: true
 
-# convert_uncompress:
-#   stage: Build
-#   script: |
-#       python3 scripts/image_base.py
-#   allow_failure: true
-
-# modification:
-#   stage: Build
-#   script: |
-#       python3 scripts/image_mod.py
-#   allow_failure: true
+build:
+  stage: Build
+  script: |
+    ss -antp
+  allow_failure: true
