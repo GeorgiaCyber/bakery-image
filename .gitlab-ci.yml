@@ -49,5 +49,5 @@ miniotest:
     - docker
   script: |
     mc config host add myminio $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
-    mc mb images
+    mc ls
   allow_failure: true
