@@ -35,7 +35,7 @@ with scandir('./templates/') as templates:
         minioclientaddr = sys.argv[0] #'10.0.1.198:9000'
         minioaccesskey = sys.argv[1] #'ITSJUSTANEXAMPLE'
         miniosecretkey = sys.argv[2] #'EXAMPLEKEY'
-        miniobucket = 'images'
+        miniobucket = 'myminio/images'
         miniofilepath = '.'
 
         # Assigns configuration item variables for each class method used.
