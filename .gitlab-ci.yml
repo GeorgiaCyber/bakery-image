@@ -56,7 +56,7 @@ build:
 #     wget https://dl.min.io/client/mc/release/linux-amd64/mc
 #     chmod +x mc
 #     ./mc --version
-#     ./mc config host add myminio $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
+#     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
 #     ./mc mb myminio/images
 #     ./mc ls myminio
 #   allow_failure: true
