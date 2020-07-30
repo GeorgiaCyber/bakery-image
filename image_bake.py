@@ -32,18 +32,21 @@ with scandir('./templates/') as templates:
         compressed_name = "{}.{}".format(image_name, compression)
 
         # Minio variables
-        minioclientaddr = sys.argv[0] #'10.0.1.198:9000'
-        minioaccesskey = sys.argv[1] #'ITSJUSTANEXAMPLE'
-        miniosecretkey = sys.argv[2] #'EXAMPLEKEY'
-        miniobucket = 'myminio/images'
+        minioclientaddr = sys.argv[1] 
+        minioaccesskey = sys.argv[2] 
+        miniosecretkey = sys.argv[3] 
+        miniobucket = 'images'
         miniofilepath = '.'
+
+        #'172.17.0.3:9000'
+        #'ITSJUSTANEXAMPLE'
+        #'EXAMPLEKEY'
 
         # Assigns configuration item variables for each class method used.
         convert_image = ImageConvert(image_name, image_url, input_format, output_format)
         customize_image = ImageCustomize(image_name, packages, customization, method, output_format)
         compress_image = ImageCompress(image_name, compression, compressed_name)
         upload_image = ImageUpload(image_name, compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket)
-
 
         if image_url:
             ImageDownload(image_url).download_image()

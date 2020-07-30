@@ -1,6 +1,6 @@
 ---
 
-image_name: ubuntu-16.04
+image_name: ubuntu-18.04
 
 compressed: false
 
@@ -13,10 +13,9 @@ compression: xz
 method: virt-builder
 
 packages:
-    - docker-ce
+    - nmap
     - tcpdump
 
 customization: |
     #!/bin/bash
-    sed - i "s/ttyS0,115200/ttys0,115200 net.ifnames=1 biosdevname=1/" /etc/default/grub
-    grub2-mkconfig -o /boot/grub2/grub.cfg
+    echo "customization completed via virt-customize" > ./custom.txt
