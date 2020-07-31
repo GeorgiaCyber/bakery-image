@@ -50,6 +50,7 @@ dockerlint:
 minio_avail:
   extends: .test
   script: |
+    echo $MINIO_URL
     mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
     mc ls myminio/images
 
