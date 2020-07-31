@@ -43,7 +43,7 @@ dockerlint:
 
 .test:
   stage: Test
-  image: gacybercenter/gacyber-lint:latest
+  image: debian:latest
   tags:
     - docker
   before_script:
@@ -62,7 +62,7 @@ minio_del_images:
   script: |
     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
     ./mc ls myminio/images
-    ./mc rm myminio/images/*
+    rm myminio/images/*
     ./mc ls myminio/images
   only:
     variables:
