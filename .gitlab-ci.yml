@@ -62,7 +62,10 @@ minio_del_images:
   script: |
     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
     ./mc ls myminio/images
-    rm ./data/images/*
+    ./mc rm myminio/images/centos-8.0.gz
+    ./mc rm debian10_lxqt.xz
+    ./mc rm ubuntu-18.04.xz
+    ./mc rmubuntu2004.xz
     ./mc ls myminio/images
   only:
     variables:
