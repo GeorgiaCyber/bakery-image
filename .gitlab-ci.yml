@@ -11,7 +11,7 @@ stages:
   image: gacybercenter/gacyber-lint:latest
   tags:
     - docker
-
+  
 mypy:
   extends: .lint
   script: |
@@ -43,23 +43,27 @@ dockerlint:
 
 .test:
   stage: Test
-  image: minio/mc:latest
+  image: debian:latest
   tags:
     - docker
+  script: |
+    apt-get install wget -y
+    wget https://dl.min.io/client/mc/release/linux-amd64/mc
+    chmod +x mc
 
 minio_avail:
   extends: .test
   script: |
-    config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    ls myminio/images
+    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    ./mc ls myminio/images
 
 minio_del_images:
   extends: .test
   script: |
-    config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    ls myminio/images
-    rm myminio/images/*
-    ls myminio/images
+    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    ./mc ls myminio/images
+    ./mc rm myminio/images/*
+    ./mc ls myminio/images
   only:
     variables:
       - $CI_COMMIT_MESSAGE =~ /delete_images/
@@ -67,8 +71,6 @@ minio_del_images:
 .build:
   stage: Build
   image: gacybercenter/image-bakery:latest
-  tags:
-    - docker
 
 build_all:
   extends: .build
@@ -87,7 +89,7 @@ build_all:
 #     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
 #     #./mc mb myminio/images
 #     ./mc ls myminio/images
-#   allow_failure: true
+#   allow_failure: true      
 
 # .download:
 #   stage: Download
@@ -103,7 +105,7 @@ build_all:
 #     python3 image_bake.py Download
 #   artifacts:
 #     expire_in:  1 day
-
+    
 # .modification:
 #   stage: Modification
 #   image: gacybercenter/image-bakery:latest
