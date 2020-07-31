@@ -74,6 +74,8 @@ minio_del_images:
 .build:
   stage: Build
   image: gacybercenter/image-bakery:latest
+  tags:
+    - docker
 
 build_all:
   extends: .build
@@ -82,7 +84,7 @@ build_all:
 
 .final_test:
   stage: Final_Test
-  image: debian:latest
+  image: gacybercenter/gacyber-lint:latest
   tags:
     - docker
   before_script:
