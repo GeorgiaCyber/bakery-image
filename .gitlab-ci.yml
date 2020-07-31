@@ -46,7 +46,7 @@ dockerlint:
   image: debian:latest
   tags:
     - docker
-  script: |
+  before_script: |
     apt-get install wget -y
     wget https://dl.min.io/client/mc/release/linux-amd64/mc
     chmod +x mc
@@ -76,6 +76,22 @@ build_all:
   extends: .build
   script: |
     python3 image_bake.py $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
+
+.final_test:
+  stage: Final_Test
+  image: debian:latest
+  tags:
+    - docker
+  before_script: |
+    apt-get install wget -y
+    wget https://dl.min.io/client/mc/release/linux-amd64/mc
+    chmod +x mc
+
+minio_img_verify:
+  extends: .final_test
+  script: |
+    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    ./mc ls myminio/images
 
 # miniotest:
 #   stage: Test
@@ -156,17 +172,3 @@ build_all:
 #   extends: .upload
 #   script: |
 #     python3 image_bake.py minio_upload
-
-.final_test:
-  stage: Final_Test
-  image: minio/mc:latest
-  script: |
-    echo $SHELL
-    pwd
-    mc --version
-
-minio_img_verify:
-  extends: .test
-  script: |
-    mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    mc ls myminio/images
