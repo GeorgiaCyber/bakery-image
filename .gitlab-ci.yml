@@ -46,10 +46,10 @@ dockerlint:
   image: debian:latest
   tags:
     - docker
-  before_script: |
-    apt-get install wget -y
-    wget https://dl.min.io/client/mc/release/linux-amd64/mc
-    chmod +x mc
+  before_script:
+    - apt-get install wget -y
+    - wget https://dl.min.io/client/mc/release/linux-amd64/mc
+    - chmod +x mc
 
 minio_avail:
   extends: .test
@@ -82,10 +82,10 @@ build_all:
   image: debian:latest
   tags:
     - docker
-  before_script: |
-    apt-get install wget -y
-    wget https://dl.min.io/client/mc/release/linux-amd64/mc
-    chmod +x mc
+  before_script:
+    - apt-get install wget -y
+    - wget https://dl.min.io/client/mc/release/linux-amd64/mc
+    - chmod +x mc
 
 minio_img_verify:
   extends: .final_test
