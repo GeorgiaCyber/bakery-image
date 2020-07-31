@@ -11,9 +11,6 @@ stages:
   image: gacybercenter/gacyber-lint:latest
   tags:
     - docker
-  script: |
-    pwd
-    ls -la ./image_baker
   
 mypy:
   extends: .lint
@@ -47,10 +44,8 @@ dockerlint:
 .test:
   stage: Test
   image: minio/mc:latest
-  script: |
-    echo $SHELL
-    pwd
-    mc --version
+  tags:
+    - docker
 
 minio_avail:
   extends: .test
@@ -72,6 +67,11 @@ minio_del_images:
 .build:
   stage: Build
   image: gacybercenter/image-bakery:latest
+  tags:
+    - docker
+
+build_all:
+  extends: .build
   script: |
     python3 image_bake.py $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
 
