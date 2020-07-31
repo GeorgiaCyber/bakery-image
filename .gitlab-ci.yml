@@ -74,8 +74,8 @@ minio_del_images:
       - $CI_COMMIT_MESSAGE =~ /delete_images/
 
 .build:
-  image: gacybercenter/image-bakery:latest
   stage: Build
+  image: gacybercenter/image-bakery:latest
   script: |
     python3 image_bake.py $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
 
