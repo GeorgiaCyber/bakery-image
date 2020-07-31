@@ -1,61 +1,174 @@
 ---
 
-default:
+stages:
+  - Lint
+  - Test
+  - Build
+  # - Download
+  # - Modification
+  # - Customization
+  # - Upload
+  - Final_Test
+
+.lint:
+  stage: Lint
   image: gacybercenter/gacyber-lint:latest
   tags:
     - docker
-
-stages:
-  - Static Analysis
-  - Test
-  - Build
-
-# mypy:
-#   stage: Static Analysis
-#   script: |
-#     pwd
-#     ls -l
-#     python3 -m mypy ./image_baker --ignore-missing-imports
-#   allow_failure: true
-
-# flake8:
-#   stage: Static Analysis
-#   script: |
-#     flake8 --max-line-length=120 ./image_baker
-#   allow_failure: true
-
-# pylint:
-#   stage: Static Analysis
-#   script: |
-#     pylint -d C0301 ./image_baker
-#   allow_failure: true
-
-# yamllint:
-#   stage: Static Analysis
-#   script: |
-#     yamllint -c .yamllint.yml  .
-#   allow_failure: true
-
-# dockerlint:
-#   stage: Static Analysis
-#   script: |
-#     dockerlint
-
-# build:
-#   image: gacybercenter/image-bakery:latest
-#   stage: Build
-#   script: |
-#     python3 image_bake.py $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
-
-miniotest:
-  stage: Test
-  tags:
-    - docker
   script: |
-    apt-get install wget -y
-    wget https://dl.min.io/client/mc/release/linux-amd64/mc
-    chmod +x mc
-    ./mc --version
-    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    ./mc ls myminio/images
+    pwd
+    ls -la ./image_baker
+  
+mypy:
+  extends: .lint
+  script: |
+    python3 -m mypy ./image_baker --ignore-missing-imports
   allow_failure: true
+
+flake8:
+  extends: .lint
+  script: |
+    flake8 --max-line-length=120 ./image_baker
+  allow_failure: true
+
+pylint:
+  extends: .lint
+  script: |
+    pylint -d C0301 ./image_baker
+  allow_failure: true
+
+yamllint:
+  extends: .lint
+  script: |
+    yamllint -c .yamllint.yml  .
+  allow_failure: true
+
+dockerlint:
+  extends: .lint
+  script: |
+    dockerlint
+
+.test:
+  stage: Test
+  image: minio/mc:latest
+  script: |
+    echo $SHELL
+    pwd
+    mc --version
+
+minio_avail:
+  extends: .test
+  script: |
+    mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    mc ls myminio/images
+
+minio_del_images:
+  extends: .test
+  script: |
+    mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    mc ls myminio/images
+    mc rm myminio/images/*
+    mc ls myminio/images
+  only:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /delete_images/
+
+.build:
+  image: gacybercenter/image-bakery:latest
+  stage: Build
+  script: |
+    python3 image_bake.py $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
+
+# miniotest:
+#   stage: Test
+#   tags:
+#     - docker
+#   script: |
+#     apt-get install wget -y
+#     wget https://dl.min.io/client/mc/release/linux-amd64/mc
+#     chmod +x mc
+#     ./mc --version
+#     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+#     #./mc mb myminio/images
+#     ./mc ls myminio/images
+#   allow_failure: true      
+
+# .download:
+#   stage: Download
+#   image: gacybercenter/image-bakery:latest
+#   script: |
+#     echo $SHELL
+#     ls -la
+#     pwd
+
+# image_download:
+#   extends: .download
+#   script: |
+#     python3 image_bake.py Download
+#   artifacts:
+#     expire_in:  1 day
+    
+# .modification:
+#   stage: Modification
+#   image: gacybercenter/image-bakery:latest
+#   script: |
+#     echo $SHELL
+#     ls -la
+#     pwd
+
+# image_convert:
+#   extends: .modification
+#   script: |
+#     python3 image_bake.py modification
+
+# image_resize:
+#   extends: .modification
+#   script: |
+#     python3 image_bake.py resize
+
+# .customization:
+#   stage: Customization
+#   image: gacybercenter/image-bakery:latest
+#   script: |
+#     echo $SHELL
+#     ls -la
+#     pwd
+
+# virt_customize:
+#   extends: .customization
+#   image: gacybercenter/image-bakery:latest
+#   script: |
+#     python3 image_bake.py virt_customize
+
+# virt_builder:
+#   extends: .customization
+#   image: gacybercenter/image-bakery:latest
+#   script: |
+#     python3 image_bake.py virt_builder
+
+# .upload:
+#   stage: Upload
+#   image: gacybercenter/image-bakery:latest
+#   script: |
+#     echo $SHELL
+#     ls -la
+#     pwd
+
+# minio_upload:
+#   extends: .upload
+#   script: |
+#     python3 image_bake.py minio_upload
+
+.final_test:
+  stage: Final_Test
+  image: minio/mc:latest
+  script: |
+    echo $SHELL
+    pwd
+    mc --version
+
+minio_img_verify:
+  extends: .test
+  script: |
+    mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    mc ls myminio/images
