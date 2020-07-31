@@ -43,8 +43,9 @@ dockerlint:
 
 .test:
   stage: Test
-  image: minio/mc:latest
-  entrypoint: ["/bin/bash"]
+  image:
+    name: minio/mc:latest
+    entrypoint: ["/bin/bash"]
   tags:
     - docker
 
