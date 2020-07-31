@@ -4,11 +4,12 @@ stages:
   - Lint
   - Test
   - Build
-  # - Download
-  # - Modification
-  # - Customization
-  # - Upload
   - Final_Test
+
+# - Download
+# - Modification
+# - Customization
+# - Upload
 
 .lint:
   stage: Lint
