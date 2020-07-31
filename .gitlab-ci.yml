@@ -91,7 +91,9 @@ minio_img_verify:
   extends: .final_test
   script: |
     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    ./mc ls myminio/images
+    ./mc ls myminio/images > minio_image_list.txt
+  artifacts:
+    expire_in:  1 day    
 
 # miniotest:
 #   stage: Test
