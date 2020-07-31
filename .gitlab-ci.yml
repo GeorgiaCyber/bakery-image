@@ -6,11 +6,6 @@ stages:
   - Build
   - Final_Test
 
-# - Download
-# - Modification
-# - Customization
-# - Upload
-
 .lint:
   stage: Lint
   image: gacybercenter/gacyber-lint:latest
