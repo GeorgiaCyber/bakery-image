@@ -62,7 +62,7 @@ minio_del_images:
   script: |
     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
     ./mc ls myminio/images
-    rm myminio/images/*
+    rm data/images/*
     ./mc ls myminio/images
   only:
     variables:
