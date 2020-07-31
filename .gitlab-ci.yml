@@ -43,26 +43,23 @@ dockerlint:
 
 .test:
   stage: Test
-  image:
-    name: minio/mc:latest
-    entrypoint: ["/bin/bash"]
+  image: minio/mc:latest
   tags:
     - docker
 
 minio_avail:
   extends: .test
   script: |
-    echo $MINIO_URL
-    mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    mc ls myminio/images
+    config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    ls myminio/images
 
 minio_del_images:
   extends: .test
   script: |
-    mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    mc ls myminio/images
-    mc rm myminio/images/*
-    mc ls myminio/images
+    config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    ls myminio/images
+    rm myminio/images/*
+    ls myminio/images
   only:
     variables:
       - $CI_COMMIT_MESSAGE =~ /delete_images/
