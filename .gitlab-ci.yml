@@ -43,7 +43,7 @@ dockerlint:
 
 .test:
   stage: Test
-  image: debian:latest
+  image: gacybercenter/gacyber-lint:latest
   tags:
     - docker
   before_script:
