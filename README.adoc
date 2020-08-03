@@ -1,7 +1,11 @@
-
-= Image Bakery
+[.float-group]
+--
+[.left]
 image::https://img.shields.io/docker/cloud/build/gacybercenter/image-bakery[Docker Build]
 image::https://gitlab.com/gacybercenter/image-bakery/badges/master/pipeline.svg[Pipeline Status]
+--
+
+= Image Bakery
 
 This project is focused on creating reproducible images of all kinds (vm, docker, tarballs for writing directly to metal, etc.)
 This project uses a combination of virt-builder, disk-imagebuilder, docker, and other tools to achieve these goals.
