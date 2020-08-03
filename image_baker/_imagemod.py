@@ -26,7 +26,8 @@ def create_user_script(customization):
 
 
 class ImageConvert:
-    def __init__(self, image_name, image_url, input_format, output_format, file_name):
+    def __init__(self, image_name, image_url, input_format,
+                 output_format, file_name):
         # Set all common variables for the ImageConvert class
         self.image_name = image_name
         self.image_url = image_url
