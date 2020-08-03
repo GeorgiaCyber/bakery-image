@@ -48,7 +48,8 @@ with scandir('./templates/') as templates:
         convert_image = ImageConvert(image_name, image_url,
                                      input_format, output_format, file_name)
         customize_image = ImageCustomize(image_name, packages,
-                                         customization, method, output_format, file_name)
+                                         customization, method,
+                                         output_format, file_name)
         compress_image = ImageCompress(compression, compressed_name, file_name)
         upload_image = ImageUpload(image_name, compressed_name,
                                    minioclientaddr, minioaccesskey,
