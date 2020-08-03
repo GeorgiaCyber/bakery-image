@@ -57,7 +57,6 @@ minio_avail:
   script: |
     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
     ./mc ls myminio/images
-    ./mc 
 
 minio_del_images:
   extends: .test
