@@ -11,7 +11,7 @@ stages:
   image: gacybercenter/gacyber-lint:latest
   tags:
     - docker
-  
+
 mypy:
   extends: .lint
   script: |
@@ -114,7 +114,7 @@ minio_del_images:
 #     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
 #     #./mc mb myminio/images
 #     ./mc ls myminio/images
-#   allow_failure: true      
+#   allow_failure: true
 
 # .download:
 #   stage: Download
@@ -130,7 +130,7 @@ minio_del_images:
 #     python3 image_bake.py Download
 #   artifacts:
 #     expire_in:  1 day
-    
+
 # .modification:
 #   stage: Modification
 #   image: gacybercenter/image-bakery:latest
