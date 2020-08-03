@@ -39,7 +39,7 @@ class YamlParse:
         for item, value in list(self.image_config.items()):
             if item == 'compression':
                 return value
- 
+
     def input_format(self):
         # Parses yaml for input_format
         for item, value in list(self.image_config.items()):

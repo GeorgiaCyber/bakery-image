@@ -1,7 +1,8 @@
 from os import scandir
 import sys
 from image_baker._yamlparse import YamlLoad, YamlParse, print_config
-from image_baker._imagemod import ImageConvert, ImageCustomize, ImageCompress, hash_image, create_user_script
+from image_baker._imagemod import (ImageConvert,
+                                   ImageCustomize, ImageCompress, hash_image)
 from image_baker._imagetransfer import ImageDownload, ImageUpload
 
 
@@ -32,41 +33,50 @@ with scandir('./templates/') as templates:
         compressed_name = "{}.{}".format(image_name, compression)
 
         # Minio variables
-        minioclientaddr = sys.argv[1] 
-        minioaccesskey = sys.argv[2] 
-        miniosecretkey = sys.argv[3] 
+        minioclientaddr = sys.argv[1]
+        minioaccesskey = sys.argv[2]
+        miniosecretkey = sys.argv[3]
         miniobucket = 'images'
         miniofilepath = '.'
 
-        #'172.17.0.3:9000'
-        #'ITSJUSTANEXAMPLE'
-        #'EXAMPLEKEY'
+        # '172.17.0.3:9000'
+        # 'ITSJUSTANEXAMPLE'
+        # 'EXAMPLEKEY'
 
         # Assigns configuration item variables for each class method used.
-        convert_image = ImageConvert(image_name, image_url, input_format, output_format)
-        customize_image = ImageCustomize(image_name, packages, customization, method, output_format)
-        compress_image = ImageCompress(image_name, compression, compressed_name)
-        upload_image = ImageUpload(image_name, compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket)
+        convert_image = ImageConvert(image_name, image_url,
+                                     input_format, output_format)
+        customize_image = ImageCustomize(image_name, packages,
+                                         customization, method, output_format)
+        compress_image = ImageCompress(image_name,
+                                       compression, compressed_name)
+        upload_image = ImageUpload(image_name, compressed_name,
+                                   minioclientaddr, minioaccesskey,
+                                   miniosecretkey, miniobucket)
 
         if image_url:
             ImageDownload(image_url).download_image()
             ImageDownload(image_url).hash_download_image()
 
         if convert is True and method == 'virt-builder':
-            # Determines if image needs to be converted to different format with virt-builder utility(raw, qcow2, etc.)
+            # Determines if image needs to be converted to
+            #  different format with virt-builder utility(raw, qcow2, etc.)
             customize_image.build_method()
 
         if convert is True and method == 'virt-customize':
-            # Determines if image needs to be converted to different format with qemu-img utility(raw, qcow2, etc.)
+            # Determines if image needs to be converted to
+            #  different format with qemu-img utility(raw, qcow2, etc.)
             convert_image.qemu_convert()
             customize_image.build_method()
 
         if compression:
-            # Determinese if image needs to be compressed based on format specified (xz, gz, bz2)
+            # Determinese if image needs to
+            #  be compressed based on format specified (xz, gz, bz2)
             compress_image.compress()
             hash_image(compressed_name)
 
         # Uploads image to minio
         upload_image.uploadimagefile()
 
-        # Print hashes for image original download, modification, and compression.
+        # Print hashes for image original download,
+        #  modification, and compression.
