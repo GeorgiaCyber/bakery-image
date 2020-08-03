@@ -1,5 +1,4 @@
 from os import remove, stat
-from subprocess import call
 from tqdm import tqdm
 from requests import get
 from minio import Minio
@@ -20,7 +19,9 @@ class ImageDownload:
 
         print('\nDownloading image from ({}):'.format(self.image_url))
         with open(file, 'wb') as file_download:
-            with tqdm(total=total_size, unit='it', unit_scale=True, desc=file, initial=initial_pos, ascii=True) as progress_bar:
+            with tqdm(total=total_size, unit='it', unit_scale=True,
+                      desc=file, initial=initial_pos,
+                      ascii=True) as progress_bar:
                 for chunk in file_request.iter_content(chunk_size=1024):
                     if chunk:
                         file_download.write(chunk)
@@ -38,7 +39,9 @@ class ImageDownload:
 
 
 class ImageUpload:
-    def __init__(self, image_name, compressed_name, minioclientaddr, minioaccesskey, miniosecretkey, miniobucket):
+    def __init__(self, image_name, compressed_name,
+                 minioclientaddr, minioaccesskey,
+                 miniosecretkey, miniobucket):
         self.image_name = image_name
         self.compressed_name = compressed_name
         self.minioclientaddr = minioclientaddr
@@ -47,13 +50,15 @@ class ImageUpload:
         self.miniobucket = miniobucket
 
     def uploadimagefile(self):
-        print('\nUploading {} to minio object store at {}...'.format(self.compressed_name, self.minioclientaddr))
+        print('\nUploading {} to minio object store \
+              at {}...'.format(self.compressed_name, self.minioclientaddr))
         client = Minio(self.minioclientaddr, access_key=self.minioaccesskey,
                        secret_key=self.miniosecretkey, secure=False)
         try:
             with open(self.compressed_name, 'rb') as file_data:
                 file_stat = stat(self.compressed_name)
-                client.put_object(self.miniobucket, self.compressed_name, file_data, file_stat.st_size)
+                client.put_object(self.miniobucket, self.compressed_name,
+                                  file_data, file_stat.st_size)
         except ResponseError as err:
             print(err)
         remove(self.compressed_name)

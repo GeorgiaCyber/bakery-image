@@ -15,19 +15,19 @@ stages:
 mypy:
   extends: .lint
   script: |
-    python3 -m mypy ./image_baker --ignore-missing-imports
+    python3 -m mypy . --ignore-missing-imports
   allow_failure: true
 
 flake8:
   extends: .lint
   script: |
-    flake8 --max-line-length=120 ./image_baker
+    flake8
   allow_failure: true
 
 pylint:
   extends: .lint
   script: |
-    pylint -d C0301 ./image_baker
+    pylint -d C0301 .
   allow_failure: true
 
 yamllint:
@@ -47,7 +47,6 @@ dockerlint:
   tags:
     - docker
   before_script:
-    - apt-get install wget -y
     - wget https://dl.min.io/client/mc/release/linux-amd64/mc
     - chmod +x mc
 
@@ -71,16 +70,19 @@ minio_del_images:
     variables:
       - $CI_COMMIT_MESSAGE =~ /delete_images/
 
-# .build:
-#   stage: Build
-#   image: gacybercenter/image-bakery:latest
-#   tags:
-#     - docker
+.build:
+  stage: Build
+  image: gacybercenter/image-bakery:latest
+  tags:
+    - docker
 
-# build_all:
-#   extends: .build
-#   script: |
-#     python3 image_bake.py $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
+build_all:
+  extends: .build
+  script: |
+    python3 image_bake.py $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
+  only:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /build_all/
 
 .final_test:
   stage: Final_Test
@@ -88,7 +90,6 @@ minio_del_images:
   tags:
     - docker
   before_script:
-    - apt-get install wget jq -y
     - wget https://dl.min.io/client/mc/release/linux-amd64/mc
     - chmod +x mc
 
