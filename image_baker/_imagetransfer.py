@@ -1,4 +1,4 @@
-from os import remove, stat
+from os import remove, stat, rename
 from tqdm import tqdm
 from requests import get
 from minio import Minio
@@ -7,8 +7,9 @@ import hashlib
 
 
 class ImageDownload:
-    def __init__(self, image_url):
+    def __init__(self, image_url, image_name):
         self.image_url = image_url
+        self.image_name = image_name
 
     def download_image(self):
         # Downloads image from url passed from download_url() if available
@@ -26,11 +27,11 @@ class ImageDownload:
                     if chunk:
                         file_download.write(chunk)
                         progress_bar.update(len(chunk))
+        rename(file, self.image_name)
 
     def hash_download_image(self):
         # Create hash value for image downloaded with download_image()
-        file = self.image_url.split('/')[-1]
-        with open(file, 'rb') as file:
+        with open(self.image_name, 'rb') as file:
             content = file.read()
         sha = hashlib.sha256()
         sha.update(content)
@@ -41,17 +42,18 @@ class ImageDownload:
 class ImageUpload:
     def __init__(self, image_name, compressed_name,
                  minioclientaddr, minioaccesskey,
-                 miniosecretkey, miniobucket):
+                 miniosecretkey, miniobucket, file_name):
         self.image_name = image_name
         self.compressed_name = compressed_name
         self.minioclientaddr = minioclientaddr
         self.minioaccesskey = minioaccesskey
         self.miniosecretkey = miniosecretkey
         self.miniobucket = miniobucket
+        self.file_name = file_name
 
     def uploadimagefile(self):
-        print('\nUploading {} to minio object store \
-              at {}...'.format(self.compressed_name, self.minioclientaddr))
+        print('\nUploading {} to minio object store at {}'
+              .format(self.compressed_name, self.minioclientaddr))
         client = Minio(self.minioclientaddr, access_key=self.minioaccesskey,
                        secret_key=self.miniosecretkey, secure=False)
         try:
@@ -62,4 +64,4 @@ class ImageUpload:
         except ResponseError as err:
             print(err)
         remove(self.compressed_name)
-        remove(self.image_name)
+        remove(self.file_name)

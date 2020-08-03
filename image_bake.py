@@ -1,8 +1,8 @@
 from os import scandir
 import sys
 from image_baker._yamlparse import YamlLoad, YamlParse, print_config
-from image_baker._imagemod import (ImageConvert,
-                                   ImageCustomize, ImageCompress, hash_image)
+from image_baker._imagemod import (ImageConvert, ImageCustomize,
+                                   ImageCompress, hash_image)
 from image_baker._imagetransfer import ImageDownload, ImageUpload
 
 
@@ -31,6 +31,7 @@ with scandir('./templates/') as templates:
 
         # Sets compressed name from compression format and image name variables
         compressed_name = "{}.{}".format(image_name, compression)
+        file_name = '{}.{}'.format(image_name, output_format)
 
         # Minio variables
         minioclientaddr = sys.argv[1]
@@ -45,18 +46,17 @@ with scandir('./templates/') as templates:
 
         # Assigns configuration item variables for each class method used.
         convert_image = ImageConvert(image_name, image_url,
-                                     input_format, output_format)
+                                     input_format, output_format, file_name)
         customize_image = ImageCustomize(image_name, packages,
-                                         customization, method, output_format)
-        compress_image = ImageCompress(image_name,
-                                       compression, compressed_name)
+                                         customization, method, output_format, file_name)
+        compress_image = ImageCompress(compression, compressed_name, file_name)
         upload_image = ImageUpload(image_name, compressed_name,
                                    minioclientaddr, minioaccesskey,
-                                   miniosecretkey, miniobucket)
+                                   miniosecretkey, miniobucket, file_name)
 
         if image_url:
-            ImageDownload(image_url).download_image()
-            ImageDownload(image_url).hash_download_image()
+            ImageDownload(image_url, image_name).download_image()
+            ImageDownload(image_url, image_name).hash_download_image()
 
         if convert is True and method == 'virt-builder':
             # Determines if image needs to be converted to
