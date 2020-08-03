@@ -5,6 +5,7 @@ stages:
   - Test
   - Build
   - Final_Test
+  - Upload
 
 .lint:
   stage: Lint
