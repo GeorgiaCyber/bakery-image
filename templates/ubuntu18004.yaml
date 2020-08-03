@@ -1,0 +1,21 @@
+---
+
+image_name: ubuntu-18.04
+
+compressed: false
+
+convert: true
+
+output_format: raw
+
+compression: xz
+
+method: virt-builder
+
+packages:
+    - nmap
+    - tcpdump
+
+customization: |
+    #!/bin/bash
+    echo "customization completed via virt-customize" > ./custom.txt

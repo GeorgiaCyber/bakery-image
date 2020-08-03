@@ -1,0 +1,23 @@
+---
+
+image_name: centos-8.0
+
+compressed: false
+
+convert: true
+
+output_format: raw
+
+compression: gz
+
+method: virt-builder
+
+packages:
+    - tcpdump
+    - nmap
+
+customization: |
+    #!/bin/bash
+    sed -i "s/ttyS0,115200/ttys0,115200 net.ifnames=1 biosdevname=1/" /etc/default/grub
+    grub2-mkconfig -o /boot/grub2/grub.cfg
+    echo "customization completed via virt-customize" > ./custom.txt
