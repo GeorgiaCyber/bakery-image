@@ -28,7 +28,8 @@ flake8:
 pylint:
   extends: .lint
   script: |
-    pylint -d C0301 .
+    pylint -d C0301 *.py
+    pylint -d C0301 ./image_baker/*.py
   allow_failure: true
 
 yamllint:
@@ -56,6 +57,7 @@ minio_avail:
   script: |
     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
     ./mc ls myminio/images
+    ./mc 
 
 minio_del_images:
   extends: .test
