@@ -82,25 +82,25 @@ minio_del_images:
 #   script: |
 #     python3 image_bake.py $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
 
-# .final_test:
-#   stage: Final_Test
-#   image: gacybercenter/gacyber-lint:latest
-#   tags:
-#     - docker
-#   before_script:
-#     - apt-get install wget -y
-#     - wget https://dl.min.io/client/mc/release/linux-amd64/mc
-#     - chmod +x mc
+.final_test:
+  stage: Final_Test
+  image: gacybercenter/gacyber-lint:latest
+  tags:
+    - docker
+  before_script:
+    - apt-get install wget jq -y
+    - wget https://dl.min.io/client/mc/release/linux-amd64/mc
+    - chmod +x mc
 
-# minio_img_verify:
-#   extends: .final_test
-#   script: |
-#     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-#     ./mc ls myminio/images > minio_image_inventory.txt
-#   artifacts:
-#     paths:
-#       - minio_image_inventory.txt
-#     expire_in:  1 day
+minio_img_verify:
+  extends: .final_test
+  script: |
+    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    ./mc ls myminio/images > minio_image_inventory.txt
+  artifacts:
+    paths:
+      - minio_image_inventory.txt
+    expire_in: 2 weeks
 
 # miniotest:
 #   stage: Test
