@@ -3,6 +3,7 @@
 image::https://img.shields.io/badge/License-Apache%202.0-blue.svg"[Apache License, float="left"]
 image::https://gitlab.com/gacybercenter/image-bakery/badges/master/pipeline.svg[Pipeline Status, float="left"]
 image::https://img.shields.io/docker/cloud/build/gacybercenter/image-bakery[Docker Build, float="left"]
+image::https://img.shields.io/docker/pulls/gacybercenter/image-bakery.svg[Docker Pulls, float="left"]
 --
 
 = Image Bakery
