@@ -85,6 +85,11 @@ build_all:
   only:
     variables:
       - $CI_COMMIT_MESSAGE =~ /build_all/
+  artifacts:
+    when: on_success
+    paths:
+      - images/
+    expire_in: 2 days
 
 .final_test:
   stage: Final_Test
@@ -101,6 +106,7 @@ minio_img_verify:
     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
     ./mc ls myminio/images > minio_image_inventory.txt
   artifacts:
+    when: on_success
     paths:
       - minio_image_inventory.txt
     expire_in: 2 weeks
