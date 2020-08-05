@@ -42,7 +42,7 @@ class ImageDownload:
 class ImageUpload:
     def __init__(self, image_name, compressed_name,
                  minioclientaddr, minioaccesskey,
-                 miniosecretkey, miniobucket, file_name):
+                 miniosecretkey, miniobucket, file_name, compression):
         self.image_name = image_name
         self.compressed_name = compressed_name
         self.minioclientaddr = minioclientaddr
@@ -50,16 +50,23 @@ class ImageUpload:
         self.miniosecretkey = miniosecretkey
         self.miniobucket = miniobucket
         self.file_name = file_name
+        self.compression = compression
 
     def uploadimagefile(self):
+        if self.compression:
+            file_upload = self.compressed_name
+        else:
+            file_upload = self.file_name
+        
         print('\nUploading {} to minio object store at {}'
-              .format(self.compressed_name, self.minioclientaddr))
+              .format(file_upload, self.minioclientaddr))
         client = Minio(self.minioclientaddr, access_key=self.minioaccesskey,
-                       secret_key=self.miniosecretkey, secure=False)
+                       secret_key=self.miniosecretkey, secure=False)       
+
         try:
-            with open(self.compressed_name, 'rb') as file_data:
-                file_stat = stat(self.compressed_name)
-                client.put_object(self.miniobucket, self.compressed_name,
+            with open(file_upload, 'rb') as file_data:
+                file_stat = stat(file_upload)
+                client.put_object(self.miniobucket, file_upload,
                                   file_data, file_stat.st_size)
         except ResponseError as err:
             print(err)

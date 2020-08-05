@@ -17,13 +17,9 @@ compression: xz
 method: virt-customize
 
 packages:
-    - ipcalc
-    - cmatrix
-    - fortune
-
+    - lightdm
+    - ubuntu-desktop
+ 
 customization: |
     #!/bin/bash
-    hostnamectl set-hostname ubuntu_server
-    echo blacklist qxl > /etc/modprobe.d/qxl.conf
-    sed -i "s/ttyS0,115200/ttys0,115200 net.ifnames=1 biosdevname=1/" /etc/default/grub
     echo "customization completed via virt-customize" > ./custom.txt

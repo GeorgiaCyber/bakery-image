@@ -89,6 +89,7 @@ build_all:
     when: on_success
     paths:
       - images/
+    untracked: true
     expire_in: 2 days
 
 .final_test:
@@ -109,6 +110,7 @@ minio_img_verify:
     when: on_success
     paths:
       - minio_image_inventory.txt
+    untracked: true
     expire_in: 2 weeks
 
 # miniotest:

@@ -75,6 +75,12 @@ class YamlParse:
         for item, value in list(self.image_config.items()):
             if item == 'customization':
                 return value
+    
+    def image_size(self):
+        # Parses yaml for image size modification
+        for item, value in list(self.image_config.items()):
+            if item == 'image_size':
+                return value
 
 
 def print_config(image_config):

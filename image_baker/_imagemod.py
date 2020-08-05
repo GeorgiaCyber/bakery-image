@@ -1,6 +1,8 @@
-from os import remove
+from os import remove, stat, truncate
+from re import search, split
+from pathlib import Path
 from subprocess import call
-from shutil import copyfileobj
+from shutil import copyfileobj, copy
 import hashlib
 import lzma
 import gzip
@@ -46,16 +48,44 @@ class ImageConvert:
 
 class ImageCustomize():
     def __init__(self, image_name, packages,
-                 customization, method, output_format, file_name):
-        # Set all common variables for the ImageCustomizatoin class
+                 customization, method, output_format,
+                 file_name, image_size):
+        # Set all common variables for the ImageCustomization class
         self.image_name = image_name
         self.packages = ",".join(packages)
         self.customization = customization
         self.method = method
         self.output_format = output_format
         self.file_name = file_name
+        self.image_size = image_size
+
+
+    def image_resize(self):
+        # resize image partition to specification in template file
+        new_image = '{}_new'.format(self.file_name)
+
+        if search('G', self.image_size):
+            # convert gigabytes to bytes for new file size
+            image_size_b = int(split('G', self.image_size)[0]) * (1024**3)
+        if search('M', self.image_size):
+            # convert megabytes to bytes for new file size
+            image_size_b = int(split('M', self.image_size)[0]) * (1024**2)
+    
+        # create new image file for truncation
+        with open(new_image, 'wb') as fh:
+            truncate(new_image, image_size_b)
+
+        # call virt resize to expand sda1 partition to truncated image's new size
+        call('virt-resize --expand /dev/sda1 {} {}'.format(self.file_name, new_image), shell=True)
+
+        # copy newly truncated file to current directory as originally
+        #  named image file and remove temp image_file
+        copy(new_image, self.file_name)
+        remove(new_image)
+        
 
     def build_method(self):
+        # Determine build method type (virt-customize or virt-builder)
         if self.method == 'virt-customize':
             print('\nCustomizing {} image with virt-customize\
                   utility...\n'.format(self.image_name))
@@ -67,7 +97,7 @@ class ImageCustomize():
             print('\nApplying the following user script:\
                   \n {}'.format(user_script))
             # update package cache and install packages
-            call('virt-customize -a {} -update --install {}\
+            call('virt-customize -v -x -a {} -update --install {}\
                  --run user_script.sh'.format(self.file_name,
                  self.packages), shell=True)
             remove('user_script.sh')
@@ -89,6 +119,7 @@ class ImageCustomize():
 
 
 class ImageCompress:
+    # Compress image to specification in template file (gz, bz2, xz)
     def __init__(self, compression, compressed_name, file_name):
         self.compression = compression
         self.compressed_name = compressed_name
