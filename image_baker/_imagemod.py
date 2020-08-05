@@ -114,7 +114,7 @@ class ImageCustomize():
             call('virt-builder {} --update --install {} --run user_script.sh\
                  --format {} --output {}'.format(self.image_name,
                  self.packages, self.output_format,
-                 self.image_name), shell=True)
+                 self.file_name), shell=True)
 
 
 class ImageCompress:
