@@ -57,11 +57,11 @@ class ImageUpload:
             file_upload = self.compressed_name
         else:
             file_upload = self.file_name
-        
+
         print('\nUploading {} to minio object store at {}'
               .format(file_upload, self.minioclientaddr))
         client = Minio(self.minioclientaddr, access_key=self.minioaccesskey,
-                       secret_key=self.miniosecretkey, secure=False)       
+                       secret_key=self.miniosecretkey, secure=False)
 
         try:
             with open(file_upload, 'rb') as file_data:

@@ -22,7 +22,7 @@ mypy:
 flake8:
   extends: .lint
   script: |
-    flake8
+    flake8 --ignore=F841
   allow_failure: true
 
 pylint:

@@ -19,7 +19,7 @@ method: virt-customize
 packages:
     - lightdm
     - ubuntu-desktop
- 
+
 customization: |
     #!/bin/bash
     echo "customization completed via virt-customize" > ./custom.txt

@@ -1,6 +1,5 @@
-from os import remove, stat, truncate
+from os import remove, truncate
 from re import search, split
-from pathlib import Path
 from subprocess import call
 from shutil import copyfileobj, copy
 import hashlib
@@ -59,7 +58,6 @@ class ImageCustomize():
         self.file_name = file_name
         self.image_size = image_size
 
-
     def image_resize(self):
         # resize image partition to specification in template file
         new_image = '{}_new'.format(self.file_name)
@@ -70,19 +68,20 @@ class ImageCustomize():
         if search('M', self.image_size):
             # convert megabytes to bytes for new file size
             image_size_b = int(split('M', self.image_size)[0]) * (1024**2)
-    
+
         # create new image file for truncation
         with open(new_image, 'wb') as fh:
             truncate(new_image, image_size_b)
 
-        # call virt resize to expand sda1 partition to truncated image's new size
-        call('virt-resize --expand /dev/sda1 {} {}'.format(self.file_name, new_image), shell=True)
+        # call virt resize to expand sda1 partition to
+        #  truncated image's new size
+        call('virt-resize --expand /dev/sda1 {} {}'
+             .format(self.file_name, new_image), shell=True)
 
         # copy newly truncated file to current directory as originally
         #  named image file and remove temp image_file
         copy(new_image, self.file_name)
         remove(new_image)
-        
 
     def build_method(self):
         # Determine build method type (virt-customize or virt-builder)
@@ -130,13 +129,13 @@ class ImageCompress:
               .format(self.compression))
         if self.compression == "gz":
             with open(self.file_name, 'rb') as file_in, \
-                 gzip.open(self.compressed_name, 'wb') as file_out:
+                gzip.open(self.compressed_name, 'wb') as file_out:
                 copyfileobj(file_in, file_out)
         elif self.compression == "bz2":
             with open(self.file_name, 'rb') as file_in, \
-                 bz2.open(self.compressed_name, 'wb') as file_out:
+                bz2.open(self.compressed_name, 'wb') as file_out:
                 copyfileobj(file_in, file_out)
         else:
             with open(self.file_name, 'rb') as file_in, \
-                 lzma.open(self.compressed_name, 'wb') as file_out:
+                lzma.open(self.compressed_name, 'wb') as file_out:
                 copyfileobj(file_in, file_out)

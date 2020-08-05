@@ -30,7 +30,7 @@ customization: |
     gpg --keyserver hkp://keys.gnupg.net --recv-key 44C6513A8E4FB3D30875F758ED444FF07D8D0BF6
     echo "deb http://http.kali.org/kali kali-rolling main non-free contrib" >> /etc/apt/sources.list
     gpg -a --export ED444FF07D8D0BF6 | sudo apt-key add -
-    apt-get -y update 
+    apt-get -y update
     apt-get -y install kali-desktop-lxde
     echo blacklist qxl > /etc/modprobe.d/qxl.conf
     echo "root:t00r" | chpasswd
