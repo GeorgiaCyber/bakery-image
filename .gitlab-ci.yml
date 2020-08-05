@@ -49,6 +49,7 @@ dockerlint:
   tags:
     - docker
   before_script:
+    - apt-get install wget -y
     - wget https://dl.min.io/client/mc/release/linux-amd64/mc
     - chmod +x mc
 
@@ -96,6 +97,7 @@ build_all:
   tags:
     - docker
   before_script:
+    - apt-get install wget -y
     - wget https://dl.min.io/client/mc/release/linux-amd64/mc
     - chmod +x mc
 
