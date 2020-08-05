@@ -45,7 +45,7 @@ dockerlint:
 
 .test:
   stage: Test
-  image: gacybercenter/gacyber-lint:latest
+  image: gacybercenter/image-bakery:latest
   tags:
     - docker
   before_script:
@@ -92,7 +92,7 @@ build_all:
 
 .final_test:
   stage: Final_Test
-  image: gacybercenter/gacyber-lint:latest
+  image: gacybercenter/image-bakery:latest
   tags:
     - docker
   before_script:
