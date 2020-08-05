@@ -96,7 +96,7 @@ class ImageCustomize():
             print('\nApplying the following user script:\
                   \n {}'.format(user_script))
             # update package cache and install packages
-            call('virt-customize -v -x -a {} -update --install {}\
+            call('virt-customize -a {} -update --install {}\
                  --run user_script.sh'.format(self.file_name,
                  self.packages), shell=True)
             remove('user_script.sh')
