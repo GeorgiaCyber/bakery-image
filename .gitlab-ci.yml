@@ -42,16 +42,12 @@ dockerlint:
   extends: .lint
   script: |
     dockerlint
-
+ 
 .test:
   stage: Test
   image: gacybercenter/image-bakery:latest
   tags:
     - docker
-  before_script:
-    - apt-get install wget -y
-    - wget https://dl.min.io/client/mc/release/linux-amd64/mc
-    - chmod +x mc
 
 minio_avail:
   extends: .test
@@ -96,10 +92,6 @@ build_all:
   image: gacybercenter/image-bakery:latest
   tags:
     - docker
-  before_script:
-    - apt-get install wget -y
-    - wget https://dl.min.io/client/mc/release/linux-amd64/mc
-    - chmod +x mc
 
 minio_img_verify:
   extends: .final_test
