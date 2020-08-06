@@ -22,7 +22,7 @@ mypy:
 flake8:
   extends: .lint
   script: |
-    flake8
+    flake8 --ignore=F841
   allow_failure: true
 
 pylint:
@@ -45,10 +45,11 @@ dockerlint:
 
 .test:
   stage: Test
-  image: gacybercenter/gacyber-lint:latest
+  image: gacybercenter/image-bakery:latest
   tags:
     - docker
   before_script:
+    - apt-get install wget -y
     - wget https://dl.min.io/client/mc/release/linux-amd64/mc
     - chmod +x mc
 
@@ -63,10 +64,8 @@ minio_del_images:
   script: |
     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
     ./mc ls myminio/images
-    ./mc rm myminio/images/centos-8.0.gz
-    ./mc rm myminio/images/debian10_lxqt.xz
-    ./mc rm myminio/images/ubuntu-18.04.xz
-    ./mc rm myminio/images/ubuntu2004.xz
+    ./mc ls myminio/images | awk '{print $5}' > image_list.txt
+    while read i; do ./mc rm myminio/images/$i; done < image_list.txt
     ./mc ls myminio/images
   only:
     variables:
@@ -89,14 +88,16 @@ build_all:
     when: on_success
     paths:
       - images/
+    untracked: true
     expire_in: 2 days
 
 .final_test:
   stage: Final_Test
-  image: gacybercenter/gacyber-lint:latest
+  image: gacybercenter/image-bakery:latest
   tags:
     - docker
   before_script:
+    - apt-get install wget -y
     - wget https://dl.min.io/client/mc/release/linux-amd64/mc
     - chmod +x mc
 
@@ -109,6 +110,7 @@ minio_img_verify:
     when: on_success
     paths:
       - minio_image_inventory.txt
+    untracked: true
     expire_in: 2 weeks
 
 # miniotest:

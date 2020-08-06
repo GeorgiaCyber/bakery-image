@@ -28,6 +28,7 @@ with scandir('./templates/') as templates:
         packages = config_item.packages()
         customization = config_item.customization()
         compression = config_item.compression()
+        image_size = config_item.image_size()
 
         # Sets compressed name from compression format and image name variables
         compressed_name = "{}.{}".format(image_name, compression)
@@ -49,13 +50,15 @@ with scandir('./templates/') as templates:
                                      input_format, output_format, file_name)
         customize_image = ImageCustomize(image_name, packages,
                                          customization, method,
-                                         output_format, file_name)
+                                         output_format, file_name, image_size)
         compress_image = ImageCompress(compression, compressed_name, file_name)
         upload_image = ImageUpload(image_name, compressed_name,
                                    minioclientaddr, minioaccesskey,
-                                   miniosecretkey, miniobucket, file_name)
+                                   miniosecretkey, miniobucket, file_name,
+                                   compression)
 
         if image_url:
+            # Download image from url specified
             ImageDownload(image_url, image_name).download_image()
             ImageDownload(image_url, image_name).hash_download_image()
 
@@ -63,11 +66,20 @@ with scandir('./templates/') as templates:
             # Determines if image needs to be converted to
             #  different format with virt-builder utility(raw, qcow2, etc.)
             customize_image.build_method()
+        elif method == 'virt-builder':
+            customize_image.build_method()
 
         if convert is True and method == 'virt-customize':
             # Determines if image needs to be converted to
             #  different format with qemu-img utility(raw, qcow2, etc.)
             convert_image.qemu_convert()
+            if image_size:
+                # Determines if image needs to be resized
+                customize_image.image_resize()
+                customize_image.build_method()
+            else:
+                customize_image.build_method()
+        elif method == 'virt-customize':
             customize_image.build_method()
 
         if compression:

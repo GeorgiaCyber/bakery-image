@@ -4,6 +4,8 @@ image_name: debian10_lxqt
 
 image_url: https://cloud.debian.org/images/cloud/OpenStack/current/debian-10.5.0-openstack-amd64.qcow2
 
+image_size: 10G
+
 compressed: false
 
 convert: true
@@ -20,6 +22,9 @@ packages:
     - ipcalc
     - cmatrix
     - fortune
+    - xorg
+    - lxqt
+    - sddm
 
 customization: |
     #!/bin/bash

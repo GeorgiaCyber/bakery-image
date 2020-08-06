@@ -1,0 +1,39 @@
+---
+
+image_name: debian10_kali
+
+image_url: https://cdimage.debian.org/cdimage/openstack/current/debian-10.5.0-openstack-amd64.qcow2
+
+compressed: false
+
+image_size: 10G
+
+convert: true
+
+input_format: qcow2
+
+output_format: raw
+
+method: virt-customize
+
+compression: xz
+
+packages:
+    - wget
+    - gnupg
+    - dirmngr
+
+customization: |
+    #!/bin/bash
+    export DEBIAN_FRONTEND=noninteractive
+    wget -q -O - https://archive.kali.org/archive-key.asc | gpg --import
+    gpg --keyserver hkp://keys.gnupg.net --recv-key 44C6513A8E4FB3D30875F758ED444FF07D8D0BF6
+    echo "deb http://http.kali.org/kali kali-rolling main non-free contrib" >> /etc/apt/sources.list
+    gpg -a --export ED444FF07D8D0BF6 | sudo apt-key add -
+    apt-get -y update
+    apt-get -y install kali-desktop-lxde
+    echo blacklist qxl > /etc/modprobe.d/qxl.conf
+    echo "root:t00r" | chpasswd
+    useradd -m -G sudo -s /bin/bash gacyberadmin
+    echo "gacyberadmin:t3stp455w0rd" | chpasswd
+    echo "customization completed via virt-customize" > ./custom.txt
