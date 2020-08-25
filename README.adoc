@@ -2,6 +2,9 @@ image::docs/images/image_bakery.png[image_bakery,width="20%",height="20%",align=
 
 [.text-center]
 = Image Bakery
+
+---
+
 [.float-group]
 --
 image::https://img.shields.io/badge/License-Apache%202.0-blue.svg"[Apache License, float="left"]
@@ -12,32 +15,39 @@ image::https://img.shields.io/docker/pulls/gacybercenter/image-bakery.svg[Docker
 
 == Basic Overview
 
-Image bakery is a image creation utility focused on creating reproducible images of several types to include VM, cloud images, docker, and direct to metal. +
+Image Bakery is a image creation utility focused on creating reproducible images of several types to include VM, cloud images, docker, and direct to metal. +
 
-This project uses a combination of virt-builder, disk-imagebuilder, docker, and other tools to achieve these goals.
-The format for defining an image build is still unstable and very much a work in progress, so the ugly direct-to-ci hack is just being used for testing purposes.
-Note that your runner must expose /dev/kvm to the job, or else it will be painfully slow (this means running a docker container in privileged mode, adding your runner job user to the kvm group,
-or somehow otherwise exposing /dev/kvm to your job as appropriate.)
+Image Bakery uses a combination of virt-builder, virt-customize, docker, minio, and other tools to achieve these goals. +
+
+The format for defining an image build is still unstable and very much a work in progress, so the ugly direct-to-ci hack is just being used for testing purposes until cli interface is fleshed out. +
+
+WARNING: The runner must expose `/dev/kvm` to the job for Image Bakery to work properly. Failure to do so will result in a painfully slow image building experience. This issue can be addressed by running the docker container in privileged mode and adding the runner job user to the kvm group.
 
 .sample image.yaml
 [source, yaml]
 ----
-name: #unparsed
-  method: virt-builder #can be any one of [virt-builder, diskimage-builder, docker/podman, or ???]
-  source: centos-8.0 #basis for creating the image.  This will differ depending on the method.
-  args: #list of args to be passed directly to method cli. [arg1, arg2, arg3] format is also acceptable
-    - arg1
-    - arg2
-    - arg3
-  format: raw #can be [raw, qcow2, tgz, docker]
-  compress: true #compress with xz -zT 0 {{ file }}
-  packages: #packages to install in image
+---
+
+image_name: ubuntu-18.04
+
+compressed: false
+
+convert: true
+
+output_format: raw
+
+compression: xz
+
+method: virt-builder
+
+packages:
     - pkg1
     - pkg2
-    - pkg3
-  custom_script: |
-      ## This script will be passed directly into the native shell of your image as the last step
-      ## Use this to do things like set grub boot times, force predictable udev names, load kernel modules, etc.
+
+customization: |
+    #!/bin/bash
+    echo "customization completed via virt-builder" > ./custom.txt
+
 ----
 
 .sample config.toml
