@@ -1,5 +1,3 @@
-
-
 image::docs/images/image_bakery.png[image_bakery,width="20%",height="20%",align="center"]
 
 [.text-center]
@@ -15,8 +13,8 @@ image::https://img.shields.io/docker/pulls/gacybercenter/image-bakery.svg[Docker
 
 == Basic Overview
 
-Image bakery is a image creation utility focused on creating reproducible images of several types to include VM, cloud images, docker, and direct to medal.
-This project is focused on creating reproducible images of all kinds (vm, docker, tarballs for writing directly to metal, etc.)
+Image bakery is a image creation utility focused on creating reproducible images of several types to include VM, cloud images, docker, and direct to metal. +
+
 This project uses a combination of virt-builder, disk-imagebuilder, docker, and other tools to achieve these goals.
 The format for defining an image build is still unstable and very much a work in progress, so the ugly direct-to-ci hack is just being used for testing purposes.
 Note that your runner must expose /dev/kvm to the job, or else it will be painfully slow (this means running a docker container in privileged mode, adding your runner job user to the kvm group,
