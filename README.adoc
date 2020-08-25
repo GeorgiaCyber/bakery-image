@@ -2,7 +2,6 @@ image::docs/images/image_bakery.png[image_bakery,width="20%",height="20%",align=
 
 [.text-center]
 = Image Bakery
----
 [.float-group]
 --
 image::https://img.shields.io/badge/License-Apache%202.0-blue.svg"[Apache License, float="left"]
