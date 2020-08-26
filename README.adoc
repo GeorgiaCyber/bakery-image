@@ -94,7 +94,7 @@ git clone https://gitlab.com/gacybercenter/image-bakery.git
 ----
 
 === Docker Installation
-*Requirements:* +
+.Requirements:
 * Docker
 * Git clone of image bakery repo
 
