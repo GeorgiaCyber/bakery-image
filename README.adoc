@@ -68,21 +68,21 @@ The format for defining an image build is still unstable and very much a work in
 Image Bakery can be installed locally without a CI/CD pipeline on any x86 64-bit Linux OS, provided the following requirements are met:
 
 .Requirements
-  - Python3.8 +
-  - python3-pip +
-  - npm +
-  - libguestfs-tools +
+* Python3.8
+* python3-pip
+* npm
+* libguestfs-tools
 
 .Install requirements (Ubuntu 20.004):
 ----
 apt-get install python3 python3-pip npm libguestfs-tools
 ----
 
-*pip packages* +
-  https://pypi.org/project/PyYAML/[pyyaml] +
-  https://pypi.org/project/requests/[requests] +
-  https://pypi.org/project/tqdm/[tqdm] +
-  https://pypi.org/project/minio/[minio] +
+.Pip package requirements
+* https://pypi.org/project/PyYAML/[pyyaml] +
+* https://pypi.org/project/requests/[requests] +
+* https://pypi.org/project/tqdm/[tqdm] +
+* https://pypi.org/project/minio/[minio] +
 
 .Install pip package requirements:
 ----
@@ -102,7 +102,7 @@ git clone https://gitlab.com/gacybercenter/image-bakery.git
 
 If docker installation instructions are needed, use the https://docs.docker.com/engine/install/[install guide] provided by the docker docs.
 
-Image Bakery is designed with the flexibility to run on a CI/CD pipeline or locally with docker containers, however additional configuration is needed:
+Image Bakery is designed with the flexibility to run on a CI/CD pipeline in or locally with docker containers, however additional configuration is needed:
 
 WARNING: The runner must expose `/dev/kvm` to the job for Image Bakery to work properly. Failure to do so will result in a painfully slow image building experience. This issue can be addressed by running the docker container in privileged mode and adding the runner job user to the kvm group. Custom runner TOML configuration is included for reference below.
 
@@ -136,10 +136,11 @@ WARNING: The runner must expose `/dev/kvm` to the job for Image Bakery to work p
 Image bakery uses templates written in https://en.wikipedia.org/wiki/YAML[yaml] format for specification of image attributes.
 
 === Local Usage:
-Navigate to the the cloned repo directory and run image_bake.py:
-
-  cd image-bakery
-  python3 image-bake.py
+.Navigate to the the cloned repo directory and run image_bake.py:
+----
+cd image-bakery
+python3 image-bake.py
+----
 
 === Docker Usage:
 
