@@ -1,17 +1,58 @@
 image::docs/images/image_bakery.png[image_bakery,width="20%",height="20%",align="center"]
 
-[.text-center]
-= Image Bakery
+// [.text-center]
+// = Image Bakery
+
+++++
+<h1 align="center">Image Bakery</h1>
+<h4 align="center"> Custom Image Creation Utility</h4>
+++++
 
 ---
 
-[.float-group]
---
-image::https://img.shields.io/badge/License-Apache%202.0-blue.svg"[Apache License, float="left"]
-image::https://gitlab.com/gacybercenter/image-bakery/badges/master/pipeline.svg[Pipeline Status, float="left"]
-image::https://img.shields.io/docker/cloud/build/gacybercenter/image-bakery[Docker Build, float="left"]
-image::https://img.shields.io/docker/pulls/gacybercenter/image-bakery.svg[Docker Pulls, float="left"]
---
+// [.float-group]
+// --
+// image::https://img.shields.io/badge/License-Apache%202.0-blue.svg"[Apache License, float="left"]
+// image::https://gitlab.com/gacybercenter/image-bakery/badges/master/pipeline.svg[Pipeline Status, float="left"]
+// image::https://img.shields.io/docker/cloud/build/gacybercenter/image-bakery[Docker Build, float="left"]
+// image::https://img.shields.io/docker/pulls/gacybercenter/image-bakery.svg[Docker Pulls, float="left"]
+// --
+
+++++
+
+<p align="center">
+    <a href="https://www.apache.org/licenses/LICENSE-2.0.txt">
+    <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"
+         alt="License">
+    <a href="https://gitlab.com/gacybercenter/image-bakery/badges/master/pipeline.svg">
+    <img src="https://gitlab.com/gacybercenter/image-bakery/badges/master/pipeline.svg"
+         alt="pipeline status">
+    <a href="https://img.shields.io/docker/cloud/build/gacybercenter/image-bakery">
+    <img src="https://img.shields.io/docker/cloud/build/gacybercenter/image-bakery"
+         alt="docker build">
+    <a href="https://img.shields.io/docker/pulls/gacybercenter/image-bakery.svg">
+    <img src="https://img.shields.io/docker/pulls/gacybercenter/image-bakery.svg"
+         alt="docker pulls">
+</p>
+
+<p align="center">
+  <a href="#user-content-basic-overview">Basic Overview</a> •
+  <a href="#user-content-installation">Installation</a> •
+  <a href="#user-content-usage">Usage</a> •
+  <a href="#user-content-features">Features</a> •
+  <a href="#user-content-contributing">Contributing</a> •
+  <a href="#user-content-author">Author</a> •
+  <a href="#user-content-license">License</a>
+</p>
+++++
+
+// [.float-group]
+// --
+// image::https://img.shields.io/badge/License-Apache%202.0-blue.svg"[Apache License, float="left"]
+// image::https://gitlab.com/gacybercenter/image-bakery/badges/master/pipeline.svg[Pipeline Status, float="left"]
+// image::https://img.shields.io/docker/cloud/build/gacybercenter/image-bakery[Docker Build, float="left"]
+// image::https://img.shields.io/docker/pulls/gacybercenter/image-bakery.svg[Docker Pulls, float="left"]
+// --
 
 == Basic Overview
 
@@ -25,10 +66,22 @@ WARNING: The runner must expose `/dev/kvm` to the job for Image Bakery to work p
 
 ---
 
+
+=== Installation
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at ipsum in lorem pulvinar rhoncus. Maecenas placerat dapibus lectus, eget gravida nisi molestie ac. Sed sed quam nec urna tincidunt pharetra. Nunc consectetur turpis iaculis tortor fermentum eleifend. Aliquam convallis, erat quis rutrum lacinia, dolor diam lobortis justo, et interdum tellus nunc id urna. Donec ullamcorper consectetur urna, sed varius nibh sodales at. Cras tincidunt nibh purus, quis tristique felis dictum sed. Nullam a nisl ligula. Vivamus et egestas sem, et porta arcu. Integer condimentum magna mi, non dictum arcu mattis vel. Nulla mi tortor, facilisis vel leo vel, cursus finibus ante. Duis porta, turpis nec efficitur maximus, leo diam pellentesque mauris, non malesuada nisl ante id magna.
+
+Nam sit amet nulla vestibulum leo gravida dapibus. Fusce placerat posuere augue a commodo. Nulla euismod rhoncus erat, quis finibus justo placerat varius. Quisque mi quam, imperdiet nec molestie iaculis, consectetur vitae mi. Nullam porta aliquet mauris vel feugiat. Donec quis urna vestibulum, scelerisque mi eu, feugiat lacus. Integer eget accumsan metus. Sed hendrerit est placerat quam viverra, et interdum dolor fermentum.
+
+
+
 === Usage
 
-Image bakery uses the https://en.wikipedia.org/wiki/YAML[yaml] format to 
+Image bakery uses templates written in https://en.wikipedia.org/wiki/YAML[yaml] format for specification of image attributes.
 
+Cras elit magna, congue eget eros aliquet, efficitur ultrices metus. Ut et accumsan tortor. Maecenas mollis rhoncus erat sed tempus. Aliquam ut volutpat tellus. Sed at convallis mi. Cras pulvinar justo magna, eget sagittis arcu consequat sed. Suspendisse potenti. Mauris ex velit, auctor eget tristique ac, malesuada id nibh. Aenean porttitor scelerisque massa tincidunt iaculis. Suspendisse potenti. Pellentesque bibendum feugiat lacus. Proin sodales euismod viverra. Phasellus consequat euismod massa, vel imperdiet nulla consequat sed. Donec in quam sit amet tortor aliquet venenatis. Donec tellus neque, elementum ut magna eleifend, commodo laoreet justo. Proin neque risus, ultricies a lorem nec, pulvinar auctor neque.
+
+Fusce ut sapien id nulla rutrum convallis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc at pellentesque lectus. Aenean ultricies nisl ex, a ultrices ipsum sollicitudin eu. Nam aliquet aliquam nulla, eget pharetra eros tristique eu. Sed dignissim, lorem in pellentesque finibus, urna mauris tempus tortor, vel consequat tortor ipsum vitae leo. Donec sollicitudin ligula in felis aliquet sagittis. Aenean consectetur ex in ante laoreet suscipit. Integer fringilla dolor quis mi tristique ultrices. Aenean nec vehicula est, at accumsan elit. Phasellus interdum pulvinar odio, nec maximus orci gravida sit amet. Nunc aliquam enim id ex euismod, eu tempor arcu egestas. Fusce aliquet nec ex at vestibulum. 
 
 .sample image.yaml
 [source, yaml]
@@ -77,3 +130,19 @@ customization: |
     volumes = ["/cache"]
     shm_size = 0
 ----
+
+=== Features
+Cras elit magna, congue eget eros aliquet, efficitur ultrices metus. Ut et accumsan tortor. Maecenas mollis rhoncus erat sed tempus. Aliquam ut volutpat tellus. Sed at convallis mi. Cras pulvinar justo magna, eget sagittis arcu consequat sed. Suspendisse potenti. Mauris ex velit, auctor eget tristique ac, malesuada id nibh. Aenean porttitor scelerisque massa tincidunt iaculis. Suspendisse potenti. Pellentesque bibendum feugiat lacus. Proin sodales euismod viverra. Phasellus consequat euismod massa, vel imperdiet nulla consequat sed. Donec in quam sit amet tortor aliquet venenatis. Donec tellus neque, elementum ut magna eleifend, commodo laoreet justo. Proin neque risus, ultricies a lorem nec, pulvinar auctor neque.
+
+Fusce ut sapien id nulla rutrum convallis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc at pellentesque lectus. Aenean ultricies nisl ex, a ultrices ipsum sollicitudin eu. Nam aliquet aliquam nulla, eget pharetra eros tristique eu. Sed dignissim, lorem in pellentesque finibus, urna mauris tempus tortor, vel consequat tortor ipsum vitae leo. Donec sollicitudin ligula in felis aliquet sagittis. Aenean consectetur ex in ante laoreet suscipit. Integer fringilla dolor quis mi tristique ultrices. Aenean nec vehicula est, at accumsan elit. Phasellus interdum pulvinar odio, nec maximus orci gravida sit amet. Nunc aliquam enim id ex euismod, eu tempor arcu egestas. Fusce aliquet nec ex at vestibulum. 
+
+=== Contributing
+Cras elit magna, congue eget eros aliquet, efficitur ultrices metus. Ut et accumsan tortor. Maecenas mollis rhoncus erat sed tempus. Aliquam ut volutpat tellus. Sed at convallis mi. Cras pulvinar justo magna, eget sagittis arcu consequat sed. Suspendisse potenti. Mauris ex velit, auctor eget tristique ac, malesuada id nibh. Aenean porttitor scelerisque massa tincidunt iaculis. Suspendisse potenti. Pellentesque bibendum feugiat lacus. Proin sodales euismod viverra. Phasellus consequat euismod massa, vel imperdiet nulla consequat sed. Donec in quam sit amet tortor aliquet venenatis. Donec tellus neque, elementum ut magna eleifend, commodo laoreet justo. Proin neque risus, ultricies a lorem nec, pulvinar auctor neque.
+
+Fusce ut sapien id nulla rutrum convallis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc at pellentesque lectus. Aenean ultricies nisl ex, a ultrices ipsum sollicitudin eu. Nam aliquet aliquam nulla, eget pharetra eros tristique eu. Sed dignissim, lorem in pellentesque finibus, urna mauris tempus tortor, vel consequat tortor ipsum vitae leo. Donec sollicitudin ligula in felis aliquet sagittis. Aenean consectetur ex in ante laoreet suscipit. Integer fringilla dolor quis mi tristique ultrices. Aenean nec vehicula est, at accumsan elit. Phasellus interdum pulvinar odio, nec maximus orci gravida sit amet. Nunc aliquam enim id ex euismod, eu tempor arcu egestas. Fusce aliquet nec ex at vestibulum. 
+
+=== Author
+Email: alcantrell@augusta.edu
+
+=== License
+image:https://img.shields.io/badge/License-Apache%202.0-blue.svg[link="https://www.apache.org/licenses/LICENSE-2.0.txt"]
