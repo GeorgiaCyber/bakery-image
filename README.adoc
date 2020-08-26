@@ -5,7 +5,7 @@ image::docs/images/image_bakery.png[image_bakery,width="20%",height="20%",align=
 
 ++++
 <h1 align="center">Image Bakery</h1>
-<h4 align="center"> Custom Image Creation Utility</h4>
+    <h4 align="center"> Custom Image Creation Utility</h4>
 ++++
 
 ---
@@ -157,7 +157,7 @@ docker container exec -it bake_test /bin/bash
 ----
 
 == Usage
-Image bakery uses templates written in https://en.wikipedia.org/wiki/YAML[yaml] format for specification of image attributes. The configuration files that image-bakery uses to determine it's image build should be placed in image_bakery/templates.
+Image bakery uses templates written in https://en.wikipedia.org/wiki/YAML[yaml] format for specification of image attributes. The configuration files that image-bakery uses to determine it's image build should be placed in `image_bakery/templates`.
 
 .[red]#Click to expand sampl yaml configuration#
 [%collapsible]
@@ -231,6 +231,19 @@ Cras elit magna, congue eget eros aliquet, efficitur ultrices metus. Ut et accum
 
 Fusce ut sapien id nulla rutrum convallis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc at pellentesque lectus. Aenean ultricies nisl ex, a ultrices ipsum sollicitudin eu. Nam aliquet aliquam nulla, eget pharetra eros tristique eu. Sed dignissim, lorem in pellentesque finibus, urna mauris tempus tortor, vel consequat tortor ipsum vitae leo. Donec sollicitudin ligula in felis aliquet sagittis. Aenean consectetur ex in ante laoreet suscipit. Integer fringilla dolor quis mi tristique ultrices. Aenean nec vehicula est, at accumsan elit. Phasellus interdum pulvinar odio, nec maximus orci gravida sit amet. Nunc aliquam enim id ex euismod, eu tempor arcu egestas. Fusce aliquet nec ex at vestibulum. 
 
+
+== Future Improvements/Issues
+https://gitlab.com/gacybercenter/image-bakery/-/issues[Image Bakery Current Issues]
+
+.Improvements
+* [ ] Documentation
+** [ ] Basic Documentation
+* [ ] CLI Interface
+* [ ] Docker Image builder / Dockerfile publisher
+* [ ] Various storage options (AWS, Swift Object Store, etc.)
+* [ ] CI/CD Improvements
+** [ ] Glance image store upload
+* [ ] Windows Image Build
 
 == Author
 Email: alcantrell@augusta.edu
