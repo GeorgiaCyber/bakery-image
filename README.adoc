@@ -27,10 +27,10 @@ image::docs/images/image_bakery.png[image_bakery,width="20%",height="20%",align=
     <a href="https://gitlab.com/gacybercenter/image-bakery/badges/master/pipeline.svg">
     <img src="https://gitlab.com/gacybercenter/image-bakery/badges/master/pipeline.svg"
          alt="pipeline status">
-    <a href="https://img.shields.io/docker/cloud/build/gacybercenter/image-bakery">
+    <a href="https://hub.docker.com/r/gacybercenter/image-bakery/builds">
     <img src="https://img.shields.io/docker/cloud/build/gacybercenter/image-bakery"
          alt="docker build">
-    <a href="https://img.shields.io/docker/pulls/gacybercenter/image-bakery.svg">
+    <a href="https://hub.docker.com/r/gacybercenter/image-bakery">
     <img src="https://img.shields.io/docker/pulls/gacybercenter/image-bakery.svg"
          alt="docker pulls">
 </p>
@@ -56,28 +56,92 @@ image::docs/images/image_bakery.png[image_bakery,width="20%",height="20%",align=
 
 == Basic Overview
 
-Image Bakery is a image creation utility focused on creating reproducible images of several types to include VM, cloud images, docker, and direct to metal. +
+Image Bakery is a image creation utility focused on creating reproducible images of several types to include VM, cloud images, docker, and direct to metal.
 
-Image Bakery uses a combination of virt-builder, virt-customize, docker, minio, and other tools to achieve these goals. +
+Image Bakery uses a combination of virt-builder, virt-customize, docker, minio, and other tools to achieve these goals.
 
-The format for defining an image build is still unstable and very much a work in progress, so the ugly direct-to-ci hack is just being used for testing purposes until cli interface is fleshed out. +
-
-WARNING: The runner must expose `/dev/kvm` to the job for Image Bakery to work properly. Failure to do so will result in a painfully slow image building experience. This issue can be addressed by running the docker container in privileged mode and adding the runner job user to the kvm group.
-
----
+The format for defining an image build is still unstable and very much a work in progress, so the ugly direct-to-ci hack is just being used for testing purposes until cli interface is fleshed out.
 
 
-=== Installation
+== Installation
+=== Local Installation
+Image Bakery can be installed locally without a CI/CD pipeline on any x86 64-bit Linux OS, provided the following requirements are met:
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at ipsum in lorem pulvinar rhoncus. Maecenas placerat dapibus lectus, eget gravida nisi molestie ac. Sed sed quam nec urna tincidunt pharetra. Nunc consectetur turpis iaculis tortor fermentum eleifend. Aliquam convallis, erat quis rutrum lacinia, dolor diam lobortis justo, et interdum tellus nunc id urna. Donec ullamcorper consectetur urna, sed varius nibh sodales at. Cras tincidunt nibh purus, quis tristique felis dictum sed. Nullam a nisl ligula. Vivamus et egestas sem, et porta arcu. Integer condimentum magna mi, non dictum arcu mattis vel. Nulla mi tortor, facilisis vel leo vel, cursus finibus ante. Duis porta, turpis nec efficitur maximus, leo diam pellentesque mauris, non malesuada nisl ante id magna.
+.Requirements
+  - Python3.8 +
+  - python3-pip +
+  - npm +
+  - libguestfs-tools +
 
-Nam sit amet nulla vestibulum leo gravida dapibus. Fusce placerat posuere augue a commodo. Nulla euismod rhoncus erat, quis finibus justo placerat varius. Quisque mi quam, imperdiet nec molestie iaculis, consectetur vitae mi. Nullam porta aliquet mauris vel feugiat. Donec quis urna vestibulum, scelerisque mi eu, feugiat lacus. Integer eget accumsan metus. Sed hendrerit est placerat quam viverra, et interdum dolor fermentum.
+.Install requirements (Ubuntu 20.004):
+----
+apt-get install python3 python3-pip npm libguestfs-tools
+----
+
+*pip packages* +
+  https://pypi.org/project/PyYAML/[pyyaml] +
+  https://pypi.org/project/requests/[requests] +
+  https://pypi.org/project/tqdm/[tqdm] +
+  https://pypi.org/project/minio/[minio] +
+
+.Install pip package requirements:
+----
+pip3 install pyyaml requests tdm minio
+----
 
 
+.Clone the repository to a local directory:
+----
+git clone https://gitlab.com/gacybercenter/image-bakery.git
+----
 
-=== Usage
 
+=== Docker Installation
+*Requirements:* +
+  Docker +
+
+If docker installation instructions are needed, use the https://docs.docker.com/engine/install/[install guide] provided by the docker docs.
+
+Image Bakery is designed with the flexibility to run on a CI/CD pipeline or locally with docker containers, however additional configuration is needed:
+
+WARNING: The runner must expose `/dev/kvm` to the job for Image Bakery to work properly. Failure to do so will result in a painfully slow image building experience. This issue can be addressed by running the docker container in privileged mode and adding the runner job user to the kvm group. Custom runner TOML configuration is included for reference below.
+
+.[red]#Click to expand sample toml configuration#
+[%collapsible]
+====
+.config.toml Sample Configuration:
+[source, toml]
+----
+[[runners]]
+  ...
+  [runners.custom_build_dir]
+  [runners.cache]
+    [runners.cache.s3]
+    [runners.cache.gcs]
+  [runners.docker]
+    tls_verify = false
+    image = "debian:latest"
+    privileged = false
+    devices = ["/dev/kvm"]
+    disable_entrypoint_overwrite = false
+    oom_kill_disable = false
+    disable_cache = false
+    volumes = ["/cache"]
+    shm_size = 0
+----
+====
+
+
+== Usage
 Image bakery uses templates written in https://en.wikipedia.org/wiki/YAML[yaml] format for specification of image attributes.
+
+=== Local Usage:
+Navigate to the the cloned repo directory and run image_bake.py:
+
+  cd image-bakery
+  python3 image-bake.py
+
+=== Docker Usage:
 
 Cras elit magna, congue eget eros aliquet, efficitur ultrices metus. Ut et accumsan tortor. Maecenas mollis rhoncus erat sed tempus. Aliquam ut volutpat tellus. Sed at convallis mi. Cras pulvinar justo magna, eget sagittis arcu consequat sed. Suspendisse potenti. Mauris ex velit, auctor eget tristique ac, malesuada id nibh. Aenean porttitor scelerisque massa tincidunt iaculis. Suspendisse potenti. Pellentesque bibendum feugiat lacus. Proin sodales euismod viverra. Phasellus consequat euismod massa, vel imperdiet nulla consequat sed. Donec in quam sit amet tortor aliquet venenatis. Donec tellus neque, elementum ut magna eleifend, commodo laoreet justo. Proin neque risus, ultricies a lorem nec, pulvinar auctor neque.
 
@@ -110,39 +174,22 @@ customization: |
 
 ----
 
-.sample config.toml
-[source, toml]
-----
-[[runners]]
-  ...
-  [runners.custom_build_dir]
-  [runners.cache]
-    [runners.cache.s3]
-    [runners.cache.gcs]
-  [runners.docker]
-    tls_verify = false
-    image = "debian:latest"
-    privileged = false
-    devices = ["/dev/kvm"]
-    disable_entrypoint_overwrite = false
-    oom_kill_disable = false
-    disable_cache = false
-    volumes = ["/cache"]
-    shm_size = 0
-----
 
-=== Features
+== Features
 Cras elit magna, congue eget eros aliquet, efficitur ultrices metus. Ut et accumsan tortor. Maecenas mollis rhoncus erat sed tempus. Aliquam ut volutpat tellus. Sed at convallis mi. Cras pulvinar justo magna, eget sagittis arcu consequat sed. Suspendisse potenti. Mauris ex velit, auctor eget tristique ac, malesuada id nibh. Aenean porttitor scelerisque massa tincidunt iaculis. Suspendisse potenti. Pellentesque bibendum feugiat lacus. Proin sodales euismod viverra. Phasellus consequat euismod massa, vel imperdiet nulla consequat sed. Donec in quam sit amet tortor aliquet venenatis. Donec tellus neque, elementum ut magna eleifend, commodo laoreet justo. Proin neque risus, ultricies a lorem nec, pulvinar auctor neque.
 
 Fusce ut sapien id nulla rutrum convallis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc at pellentesque lectus. Aenean ultricies nisl ex, a ultrices ipsum sollicitudin eu. Nam aliquet aliquam nulla, eget pharetra eros tristique eu. Sed dignissim, lorem in pellentesque finibus, urna mauris tempus tortor, vel consequat tortor ipsum vitae leo. Donec sollicitudin ligula in felis aliquet sagittis. Aenean consectetur ex in ante laoreet suscipit. Integer fringilla dolor quis mi tristique ultrices. Aenean nec vehicula est, at accumsan elit. Phasellus interdum pulvinar odio, nec maximus orci gravida sit amet. Nunc aliquam enim id ex euismod, eu tempor arcu egestas. Fusce aliquet nec ex at vestibulum. 
 
-=== Contributing
+
+== Contributing
 Cras elit magna, congue eget eros aliquet, efficitur ultrices metus. Ut et accumsan tortor. Maecenas mollis rhoncus erat sed tempus. Aliquam ut volutpat tellus. Sed at convallis mi. Cras pulvinar justo magna, eget sagittis arcu consequat sed. Suspendisse potenti. Mauris ex velit, auctor eget tristique ac, malesuada id nibh. Aenean porttitor scelerisque massa tincidunt iaculis. Suspendisse potenti. Pellentesque bibendum feugiat lacus. Proin sodales euismod viverra. Phasellus consequat euismod massa, vel imperdiet nulla consequat sed. Donec in quam sit amet tortor aliquet venenatis. Donec tellus neque, elementum ut magna eleifend, commodo laoreet justo. Proin neque risus, ultricies a lorem nec, pulvinar auctor neque.
 
 Fusce ut sapien id nulla rutrum convallis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc at pellentesque lectus. Aenean ultricies nisl ex, a ultrices ipsum sollicitudin eu. Nam aliquet aliquam nulla, eget pharetra eros tristique eu. Sed dignissim, lorem in pellentesque finibus, urna mauris tempus tortor, vel consequat tortor ipsum vitae leo. Donec sollicitudin ligula in felis aliquet sagittis. Aenean consectetur ex in ante laoreet suscipit. Integer fringilla dolor quis mi tristique ultrices. Aenean nec vehicula est, at accumsan elit. Phasellus interdum pulvinar odio, nec maximus orci gravida sit amet. Nunc aliquam enim id ex euismod, eu tempor arcu egestas. Fusce aliquet nec ex at vestibulum. 
 
-=== Author
+
+== Author
 Email: alcantrell@augusta.edu
 
-=== License
+
+== License
 image:https://img.shields.io/badge/License-Apache%202.0-blue.svg[link="https://www.apache.org/licenses/LICENSE-2.0.txt"]
