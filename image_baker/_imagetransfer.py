@@ -18,7 +18,7 @@ class ImageDownload:
         total_size = int(file_request.headers.get('content-length'))
         initial_pos = 0
 
-        print('\nDownloading image from ({}):'.format(self.image_url))
+        print(f'\nDownloading image from ({self.image_url}):')
         with open(file, 'wb') as file_download:
             with tqdm(total=total_size, unit='it', unit_scale=True,
                       desc=file, initial=initial_pos,
@@ -36,7 +36,7 @@ class ImageDownload:
         sha = hashlib.sha256()
         sha.update(content)
         hash_file = sha.hexdigest()
-        print('\nImage SHA256 Hash: {}'.format(hash_file))
+        print(f'\nImage SHA256 Hash: {hash_file}')
 
 
 class ImageUpload:
@@ -58,8 +58,7 @@ class ImageUpload:
         else:
             file_upload = self.file_name
 
-        print('\nUploading {} to minio object store at {}'
-              .format(file_upload, self.minioclientaddr))
+        print(f'\nUploading {file_upload} to minio object store at {self.minioclientaddr}')
         client = Minio(self.minioclientaddr, access_key=self.minioaccesskey,
                        secret_key=self.miniosecretkey, secure=False)
 
