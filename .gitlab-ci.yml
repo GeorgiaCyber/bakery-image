@@ -49,6 +49,17 @@ dockerlint:
   tags:
     - docker
 
+minio_create_bucket:
+  stage: Test
+  tags:
+    - docker
+  script: |
+    ./mc --version
+    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    ./mc mb myminio/images
+  allow_failure: true
+
+
 minio_avail:
   extends: .test
   script: |
