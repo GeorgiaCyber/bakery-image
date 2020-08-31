@@ -2,4 +2,3 @@ pyyaml
 requests
 tqdm
 minio
-docker

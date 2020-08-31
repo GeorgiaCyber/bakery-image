@@ -60,7 +60,6 @@ Image Bakery uses a combination of virt-builder, virt-customize, docker, minio, 
 
 The format for defining an image build is still unstable and very much a work in progress, so the ugly direct-to-ci hack is just being used for testing purposes until cli interface is fleshed out.
 
-
 == Installation
 === Local Installation
 Image Bakery can be installed locally without a CI/CD pipeline on any x86 64-bit Linux OS, provided the following requirements are met:
@@ -71,9 +70,14 @@ Image Bakery can be installed locally without a CI/CD pipeline on any x86 64-bit
 * npm
 * libguestfs-tools
 
+.Clone the repository to a local directory:
+----
+$ git clone https://gitlab.com/gacybercenter/image-bakery.git
+----
+
 .Install requirements (Ubuntu 20.004):
 ----
-apt-get install python3 python3-pip npm libguestfs-tools
+$ apt-get install python3 python3-pip npm libguestfs-tools
 ----
 
 .Pip package requirements
@@ -84,13 +88,9 @@ apt-get install python3 python3-pip npm libguestfs-tools
 
 .Install pip package requirements:
 ----
-pip3 install pyyaml requests tdm minio
-----
+$ pip install -r requirements.txt
 
-
-.Clone the repository to a local directory:
-----
-git clone https://gitlab.com/gacybercenter/image-bakery.git
+$ pip3 install pyyaml requests tdm minio
 ----
 
 === Docker Installation
@@ -131,15 +131,15 @@ WARNING: The runner must expose `/dev/kvm` to the job for Image Bakery to work p
 
 .Pull latest docker image from docker hub:
 ----
-docker pull gacybercenter/image-bakery:latest
+$ docker pull gacybercenter/image-bakery:latest
 ----
 
 .Execute docker run for image bakery image:
 ----
-sudo docker run --name=bake_test -d -v ~/image-bakery:/home/image-bakery --device /dev/kvm:/dev/kvm gacybercenter/image-bakery:latest /bin/bash
+$ sudo docker run --name=bake_test -d -v ~/image-bakery:/home/image-bakery --device /dev/kvm:/dev/kvm gacybercenter/image-bakery:latest /bin/bash
 ----
 
-.[red]#Click to expand psuedo syntax for docker command referenced above#
+.[red]#Click to expand pseudo syntax for docker command referenced above#
 [%collapsible]
 ====
 .Pseudo syntax for the command above
@@ -153,11 +153,11 @@ sudo docker run --name=<container name> -d -v <host git path:container mnt path>
 
 .Enter a bash terminal on the image bakery container:
 ----
-docker container exec -it bake_test /bin/bash
+$ docker container exec -it bake_test /bin/bash
 ----
 
 == Usage
-Image bakery uses templates written in https://en.wikipedia.org/wiki/YAML[yaml] format for specification of image attributes. The configuration files that image-bakery uses to determine it's image build should be placed in `image_bakery/templates`.
+Image bakery uses templates written in https://en.wikipedia.org/wiki/YAML[yaml] format for specification of image attributes. The configuration files that image-bakery uses to determine it's image build should be placed in `image_bakery/templates`. An example is provided below.
 
 .[red]#Click to expand sampl yaml configuration#
 [%collapsible]
@@ -193,8 +193,8 @@ customization: |
 === Local Usage:
 .Navigate to the the cloned repo directory and run image_bake.py:
 ----
-cd image-bakery
-python3 image-bake.py <arg1> <arg2> <arg3> 
+$ cd image-bakery
+$ python3 image-bake.py <arg1> <arg2> <arg3> 
 
 options:
 arg1 - ip address and port number (ex. 172.10.0.1:9000) for minio object storage container (if not specified, image will be saved to the local image_bakery parent directory)
@@ -207,19 +207,20 @@ arg3 - SecretAccessKey
 === Docker Usage:
 .Enter a bash terminal on the image bakery container:
 ----
-docker container exec -it bake_test /bin/bash
+$ docker container exec -it bake_test /bin/bash
 
 #Navigate to the cloned repo directory and run image_bake.py:
-cd image-bakery
-python3 image-bake.py <arg1> <arg2> <arg3> <arg4>
+$ cd image-bakery
+$ python3 image-bake.py <arg1> <arg2> <arg3> <arg4>
 ----
 
 == Features
 Cras elit magna, congue eget eros aliquet, efficitur ultrices metus. Ut et accumsan tortor. Maecenas mollis rhoncus erat sed tempus. Aliquam ut volutpat tellus. Sed at convallis mi. Cras pulvinar justo magna, eget sagittis arcu consequat sed. Suspendisse potenti. Mauris ex velit, auctor eget tristique ac, malesuada id nibh. Aenean porttitor scelerisque massa tincidunt iaculis. Suspendisse potenti. Pellentesque bibendum feugiat lacus. Proin sodales euismod viverra. Phasellus consequat euismod massa, vel imperdiet nulla consequat sed. Donec in quam sit amet tortor aliquet venenatis. Donec tellus neque, elementum ut magna eleifend, commodo laoreet justo. Proin neque risus, ultricies a lorem nec, pulvinar auctor neque.
 
+Fusce ut sapien id nulla rutrum convallis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc at pellentesque lectus. Aenean ultricies nisl ex, a ultrices ipsum sollicitudin eu. Nam aliquet aliquam nulla, eget pharetra eros tristique eu. Sed dignissim, lorem in pellentesque finibus, urna mauris tempus tortor, vel consequat tortor ipsum vitae leo. Donec sollicitudin ligula in felis aliquet sagittis. Aenean consectetur ex in ante laoreet suscipit. Integer fringilla dolor quis mi tristique ultrices. Aenean nec vehicula est, at accumsan elit. Phasellus interdum pulvinar odio, nec maximus orci gravida sit amet. Nunc aliquam enim id ex euismod, eu tempor arcu egestas. Fusce aliquet nec ex at vestibulum.
 
 == How it works
-Fusce ut sapien id nulla rutrum convallis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc at pellentesque lectus. Aenean ultricies nisl ex, a ultrices ipsum sollicitudin eu. Nam aliquet aliquam nulla, eget pharetra eros tristique eu. Sed dignissim, lorem in pellentesque finibus, urna mauris tempus tortor, vel consequat tortor ipsum vitae leo. Donec sollicitudin ligula in felis aliquet sagittis. Aenean consectetur ex in ante laoreet suscipit. Integer fringilla dolor quis mi tristique ultrices. Aenean nec vehicula est, at accumsan elit. Phasellus interdum pulvinar odio, nec maximus orci gravida sit amet. Nunc aliquam enim id ex euismod, eu tempor arcu egestas. Fusce aliquet nec ex at vestibulum. 
+Fusce ut sapien id nulla rutrum convallis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc at pellentesque lectus. Aenean ultricies nisl ex, a ultrices ipsum sollicitudin eu. Nam aliquet aliquam nulla, eget pharetra eros tristique eu. Sed dignissim, lorem in pellentesque finibus, urna mauris tempus tortor, vel consequat tortor ipsum vitae leo. Donec sollicitudin ligula in felis aliquet sagittis. Aenean consectetur ex in ante laoreet suscipit. Integer fringilla dolor quis mi tristique ultrices. Aenean nec vehicula est, at accumsan elit. Phasellus interdum pulvinar odio, nec maximus orci gravida sit amet. Nunc aliquam enim id ex euismod, eu tempor arcu egestas. Fusce aliquet nec ex at vestibulum.
 
 .Flowchart of program execution
 image::docs/images/flowchart.png[image_bakery,width="20%",height="20%",align="center"]
@@ -228,6 +229,7 @@ image::docs/images/flowchart.png[image_bakery,width="20%",height="20%",align="ce
 == Contributing
 Cras elit magna, congue eget eros aliquet, efficitur ultrices metus. Ut et accumsan tortor. Maecenas mollis rhoncus erat sed tempus. Aliquam ut volutpat tellus. Sed at convallis mi. Cras pulvinar justo magna, eget sagittis arcu consequat sed. Suspendisse potenti. Mauris ex velit, auctor eget tristique ac, malesuada id nibh. Aenean porttitor scelerisque massa tincidunt iaculis. Suspendisse potenti. Pellentesque bibendum feugiat lacus. Proin sodales euismod viverra. Phasellus consequat euismod massa, vel imperdiet nulla consequat sed. Donec in quam sit amet tortor aliquet venenatis. Donec tellus neque, elementum ut magna eleifend, commodo laoreet justo. Proin neque risus, ultricies a lorem nec, pulvinar auctor neque.
 
+Fusce ut sapien id nulla rutrum convallis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc at pellentesque lectus. Aenean ultricies nisl ex, a ultrices ipsum sollicitudin eu. Nam aliquet aliquam nulla, eget pharetra eros tristique eu. Sed dignissim, lorem in pellentesque finibus, urna mauris tempus tortor, vel consequat tortor ipsum vitae leo. Donec sollicitudin ligula in felis aliquet sagittis. Aenean consectetur ex in ante laoreet suscipit. Integer fringilla dolor quis mi tristique ultrices. Aenean nec vehicula est, at accumsan elit. Phasellus interdum pulvinar odio, nec maximus orci gravida sit amet. Nunc aliquam enim id ex euismod, eu tempor arcu egestas. Fusce aliquet nec ex at vestibulum.
 
 == Future Improvements/Issues
 https://gitlab.com/gacybercenter/image-bakery/-/issues[Image Bakery Current Issues]
@@ -244,7 +246,6 @@ https://gitlab.com/gacybercenter/image-bakery/-/issues[Image Bakery Current Issu
 
 == Author
 Email: alcantrell@augusta.edu
-
 
 == License
 image:https://img.shields.io/badge/License-Apache%202.0-blue.svg[link="https://www.apache.org/licenses/LICENSE-2.0.txt"]

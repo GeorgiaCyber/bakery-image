@@ -38,10 +38,8 @@ class ImageConvert:
 
     def qemu_convert(self):
         # Perform qemu image conversion for format type specified
-        print('\nConverting {} to {} format with qemu-img utility...'
-              .format(self.image_name, self.output_format))
-        call('qemu-img convert -f {} -O {} {} {}'.format(self.input_format,
-             self.output_format, self.image_name, self.file_name), shell=True)
+        print(f'\nConverting {self.image_name} to {self.output_format} format with qemu-img utility...')
+        call(f'qemu-img convert -f {self.input_format} -O {self.output_format} {self.image_name} {self.file_name}', shell=True)
         remove(self.image_name)
 
 
@@ -60,7 +58,7 @@ class ImageCustomize():
 
     def image_resize(self):
         # resize image partition to specification in template file
-        new_image = '{}_new'.format(self.file_name)
+        new_image = f'{self.file_name}_new'
 
         if search('G', self.image_size):
             # convert gigabytes to bytes for new file size
@@ -75,8 +73,7 @@ class ImageCustomize():
 
         # call virt resize to expand sda1 partition to
         #  truncated image's new size
-        call('virt-resize --expand /dev/sda1 {} {}'
-             .format(self.file_name, new_image), shell=True)
+        call(f'virt-resize --expand /dev/sda1 {self.file_name} {new_image}', shell=True)
 
         # copy newly truncated file to current directory as originally
         #  named image file and remove temp image_file
@@ -86,35 +83,28 @@ class ImageCustomize():
     def build_method(self):
         # Determine build method type (virt-customize or virt-builder)
         if self.method == 'virt-customize':
-            print('\nCustomizing {} image with virt-customize\
-                  utility...\n'.format(self.image_name))
-            print('\nInstalling the following packages:{}\n'
-                  .format(self.packages))
+            print(f'\nCustomizing {self.image_name} image with virt-customize\
+                  utility...\n')
+            print(f'\nInstalling the following packages:{self.packages}\n')
             # creates custom user script ran via CLI in virtcustomize
             create_user_script(self.customization)
             user_script = open('user_script.sh', 'r').read()
-            print('\nApplying the following user script:\
-                  \n {}'.format(user_script))
+            print(f'\nApplying the following user script:\
+                  \n {user_script}')
             # update package cache and install packages
-            call('virt-customize -a {} -update --install {}\
-                 --run user_script.sh'.format(self.file_name,
-                 self.packages), shell=True)
+            call(f'virt-customize -a {self.file_name} -update --install {self.packages}\
+                 --run user_script.sh', shell=True)
             remove('user_script.sh')
         elif self.method == 'virt-builder':
             # update package cache and install packages
-            print('\nCustomizing {} image with virt-builder utility'
-                  .format(self.image_name))
-            print('\nInstalling the following packages: {}\n'
-                  .format(self.packages))
+            print(f'\nCustomizing {self.image_name} image with virt-builder utility')
+            print(f'\nInstalling the following packages: {self.packages}\n')
             # creates custom user script ran via CLI in virtcustomize
             create_user_script(self.customization)
             user_script = open('user_script.sh', 'r').read()
-            print('\nApplying the following user script:\n {}'
-                  .format(user_script))
-            call('virt-builder {} --update --install {} --run user_script.sh\
-                 --format {} --output {}'.format(self.image_name,
-                 self.packages, self.output_format,
-                 self.file_name), shell=True)
+            print(f'\nApplying the following user script:\n {user_script}')
+            call(f'virt-builder {self.image_name} --update --install {self.packages} --run user_script.sh\
+                 --format {self.output_format} --output {self.file_name}', shell=True)
 
 
 class ImageCompress:
@@ -125,8 +115,7 @@ class ImageCompress:
         self.file_name = file_name
 
     def compress(self):
-        print('\nCompressing image using {} method....'
-              .format(self.compression))
+        print(f'\nCompressing image using {self.compression} method....')
         if self.compression == "gz":
             with open(self.file_name, 'rb') as file_in, \
                 gzip.open(self.compressed_name, 'wb') as file_out:

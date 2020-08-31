@@ -17,8 +17,8 @@ compression: xz
 method: virt-customize
 
 packages:
-    - lightdm
-    - ubuntu-desktop
+    - nmap
+    - tcpdump
 
 customization: |
     #!/bin/bash
