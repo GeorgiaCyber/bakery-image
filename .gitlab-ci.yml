@@ -7,18 +7,19 @@ stages:
   - Final_Test
   - Upload
 
-minio_avail:
-  script: |
-      echo "***TESTING***"
-      docker ps -a
-    # ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    # ./mc ls myminio/images
-
 .lint:
   stage: Lint
   image: gacybercenter/gacyber-lint:latest
   tags:
     - docker
+
+minio_avail:
+  extends: .lint
+  script: |
+      echo "***TESTING***"
+      docker ps -a
+    # ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    # ./mc ls myminio/images
 
 mypy:
   extends: .lint
