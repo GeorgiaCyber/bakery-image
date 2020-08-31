@@ -67,8 +67,8 @@ minio_avail:
   script: |
     ip a
     ss -antp
-    # ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    # ./mc ls myminio/images
+    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    ./mc ls myminio/images
 
 minio_del_images:
   extends: .test
