@@ -13,14 +13,6 @@ stages:
   tags:
     - docker
 
-minio_avail:
-  extends: .lint
-  script: |
-      echo "***TESTING***"
-      docker ps -a
-    # ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    # ./mc ls myminio/images
-
 mypy:
   extends: .lint
   script: |
@@ -69,6 +61,14 @@ minio_create_bucket:
   only:
     variables:
       - $CI_COMMIT_MESSAGE =~ /create_bucket/
+
+minio_avail:
+  extends: .test
+  script: |
+    ip a
+    ss -antp
+    # ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    # ./mc ls myminio/images
 
 minio_del_images:
   extends: .test
