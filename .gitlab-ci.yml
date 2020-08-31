@@ -57,14 +57,18 @@ minio_create_bucket:
     ./mc --version
     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
     ./mc mb myminio/images
-  allow_failure: true
-
+  allow_failure: false
+  only:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /create_bucket/
 
 minio_avail:
   extends: .test
   script: |
-    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    ./mc ls myminio/images
+      echo "***TESTING***"
+      docker ps -a
+    # ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+    # ./mc ls myminio/images
 
 minio_del_images:
   extends: .test
