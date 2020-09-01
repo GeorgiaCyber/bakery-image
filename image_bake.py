@@ -101,7 +101,7 @@ with os.scandir('./templates/') as templates:
         elif method == 'virt-customize':
             customize_image.build_method()
 
-        if compression:
+        if compression != None:
             # Determinese if image needs to
             #  be compressed based on format specified (xz, gz, bz2)
             compress_image.compress()
@@ -110,9 +110,8 @@ with os.scandir('./templates/') as templates:
             os.remove(file_name)
         else:
             # Move image to output or named directory
-            hash_image(file_name)
-            os.rename(os.rename(file_name, f'{output_dir}/{file_name}'))
-            os.remove(file_name)
+            os.rename(file_name, f'{output_dir}/{file_name}')
+
         
         # Uploads image to minio
         # upload_image.uploadimagefile()

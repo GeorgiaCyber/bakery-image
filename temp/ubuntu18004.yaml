@@ -8,7 +8,7 @@ convert: true
 
 output_format: raw
 
-compression: xz
+compression:
 
 method: virt-builder
 

@@ -12,13 +12,11 @@ input_format: qcow2
 
 output_format: raw
 
-compression: xz
+compression:
 
 method: virt-customize
 
 packages:
-    - nmap
-    - tcpdump
 
 customization: |
     #!/bin/bash
