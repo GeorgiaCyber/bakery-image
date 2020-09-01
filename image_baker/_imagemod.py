@@ -109,11 +109,11 @@ class ImageCustomize():
             # user_script = open('user_script.sh', 'r').read()
             # print(f'\nApplying the following user script:\n {user_script}')
             if self.packages == '':
-                call(f'virt-builder -v -x {self.image_name} --update --run user_script.sh\
+                call(f'virt-builder {self.image_name} --update --run user_script.sh\
                     --format {self.output_format} --output {self.file_name}', shell=True)
             else:
                 print(f'\nInstalling the following packages: {self.packages}\n')
-                call(f'virt-builder -v -x {self.image_name} --update --install {self.packages} --run user_script.sh\
+                call(f'virt-builder {self.image_name} --update --install {self.packages} --run user_script.sh\
                     --format {self.output_format} --output {self.file_name}', shell=True)
             remove('user_script.sh')
 

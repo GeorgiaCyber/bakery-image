@@ -13,8 +13,6 @@ compression:
 method: virt-builder
 
 packages:
-    - nmap
-    - tcpdump
 
 customization: |
     #!/bin/bash

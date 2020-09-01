@@ -16,7 +16,7 @@ output_format: raw
 
 method: virt-customize
 
-compression: xz
+compression:
 
 packages:
     - wget
