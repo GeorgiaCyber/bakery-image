@@ -10,13 +10,19 @@ from image_baker._imagetransfer import ImageDownload, ImageUpload
 if len(sys.argv) > 1:
     output_dir = os.path.isdir(sys.argv[1])
     if not output_dir:
-        output_dir = os.mkdir(sys.argv[1])
-elif len(sys.argv) < 1:
+        output_dir = sys.argv[1]
+        os.mkdir(output_dir)
+    else:
+        output_dir = sys.argv[1]
+        print("directory exists")
+else:
     output_dir = os.path.isdir('./output')
     if not output_dir:
-        output_dir = os.mkdir('./output')
-else:
-    print('Directory already exists')
+        output_dir = './output'
+        os.mkdir(output_dir)
+    else:
+        output_dir = './output'
+        print("directory exists")
 
 
 # Creates list of files in template directory
@@ -101,12 +107,13 @@ with os.scandir('./templates/') as templates:
             compress_image.compress()
             hash_image(compressed_name)
             os.rename(compressed_name, f'{output_dir}/{compressed_name}')
-
+            os.remove(file_name)
         else:
             # Move image to output or named directory
             hash_image(file_name)
             os.rename(os.rename(file_name, f'{output_dir}/{file_name}'))
-
+            os.remove(file_name)
+        
         # Uploads image to minio
         # upload_image.uploadimagefile()
 
