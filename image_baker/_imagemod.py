@@ -88,9 +88,9 @@ class ImageCustomize():
             print(f'\nInstalling the following packages:{self.packages}\n')
             # creates custom user script ran via CLI in virtcustomize
             create_user_script(self.customization)
-            user_script = open('user_script.sh', 'r').read()
-            print(f'\nApplying the following user script:\
-                  \n {user_script}')
+            # user_script = open('user_script.sh', 'r').read()
+            # print(f'\nApplying the following user script:\
+            #       \n {user_script}')
             # update package cache and install packages
             call(f'virt-customize -a {self.file_name} -update --install {self.packages}\
                  --run user_script.sh', shell=True)
@@ -101,11 +101,11 @@ class ImageCustomize():
             print(f'\nInstalling the following packages: {self.packages}\n')
             # creates custom user script ran via CLI in virtcustomize
             create_user_script(self.customization)
-            user_script = open('user_script.sh', 'r').read()
-            print(f'\nApplying the following user script:\n {user_script}')
-            call(f'virt-builder {self.image_name} --update --install {self.packages} --run user_script.sh\
+            # user_script = open('user_script.sh', 'r').read()
+            # print(f'\nApplying the following user script:\n {user_script}')
+            call(f'virt-builder -v -x {self.image_name} --update --install {self.packages} --run user_script.sh\
                  --format {self.output_format} --output {self.file_name}', shell=True)
-
+            remove('user_script.sh')
 
 class ImageCompress:
     # Compress image to specification in template file (gz, bz2, xz)
