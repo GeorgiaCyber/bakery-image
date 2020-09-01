@@ -1,114 +1,130 @@
-import os
-import sys
-from image_baker._yamlparse import YamlLoad, YamlParse, print_config
-from image_baker._imagemod import (ImageConvert, ImageCustomize,
-                                   ImageCompress, hash_image)
-from image_baker._imagetransfer import ImageDownload, ImageUpload
+from os import remove, truncate
+from re import search, split
+from subprocess import call
+from shutil import copyfileobj, copy
+import hashlib
+import lzma
+import gzip
+import bz2
 
 
-# Creates local image directory (temporary)
-if len(sys.argv) > 1:
-    output_dir = os.path.isdir(sys.argv[1])
-    if not output_dir:
-        output_dir = os.mkdir(sys.argv[1])
-elif len(sys.argv) < 1:
-    output_dir = os.path.isdir('./output')
-    if not output_dir:
-        output_dir = os.mkdir('./output')
-else:
-    print('Directory already exists')
+def hash_image(image_name):
+    # Create hash value for image
+    file = image_name
+    with open(file, 'rb') as file:
+        content = file.read()
+    sha = hashlib.sha256()
+    sha.update(content)
+    hash_file = sha.hexdigest()
+    print('\nSHA256 Hash: {}'.format(hash_file))
 
 
-# Creates list of files in template directory
-with os.scandir('./templates/') as templates:
-    for template in templates:
-        # Loads YAML specification for template file
-        image_config = YamlLoad(template).load_yaml()
-        # Prints build specification
-        print_config(image_config)
+def create_user_script(customization):
+    # creates custom user script file
+    create_script = open('user_script.sh', 'w')
+    create_script.write(customization)
+    create_script.close()
 
-        # Parses YAML for configuration items
-        config_item = YamlParse(image_config)
 
-        # Assigns each configuration item to a variable
-        image_name = config_item.image_name()
-        method = config_item.method()
-        image_url = config_item.image_url()
-        input_format = config_item.input_format()
-        output_format = config_item.output_format()
-        compressed = config_item.compressed()
-        convert = config_item.convert()
-        packages = config_item.packages()
-        customization = config_item.customization()
-        compression = config_item.compression()
-        image_size = config_item.image_size()
+class ImageConvert:
+    def __init__(self, image_name, image_url, input_format,
+                 output_format, file_name):
+        # Set all common variables for the ImageConvert class
+        self.image_name = image_name
+        self.image_url = image_url
+        self.input_format = input_format
+        self.output_format = output_format
+        self.file_name = file_name
 
-        # Sets compressed name from compression format and image name variables
-        compressed_name = f'{image_name}.{compression}'
-        file_name = f'{image_name}.{output_format}'
+    def qemu_convert(self):
+        # Perform qemu image conversion for format type specified
+        print(f'\nConverting {self.image_name} to {self.output_format} format with qemu-img utility...')
+        call(f'qemu-img convert -f {self.input_format} -O {self.output_format} {self.image_name} {self.file_name}', shell=True)
+        remove(self.image_name)
 
-        # Minio variables
-        # minioclientaddr = sys.argv[1]
-        # minioaccesskey = sys.argv[2]
-        # miniosecretkey = sys.argv[3]
-        # miniobucket = 'images'
-        # miniofilepath = '.'
 
-        # '172.17.0.3:9000'
-        # 'ITSJUSTANEXAMPLE'
-        # 'EXAMPLEKEY'
+class ImageCustomize():
+    def __init__(self, image_name, packages,
+                 customization, method, output_format,
+                 file_name, image_size):
+        # Set all common variables for the ImageCustomization class
+        self.image_name = image_name
+        self.packages = ",".join(packages)
+        self.customization = customization
+        self.method = method
+        self.output_format = output_format
+        self.file_name = file_name
+        self.image_size = image_size
 
-        # Assigns configuration item variables for each class method used.
-        convert_image = ImageConvert(image_name, image_url,
-                                     input_format, output_format, file_name)
-        customize_image = ImageCustomize(image_name, packages,
-                                         customization, method,
-                                         output_format, file_name, image_size)
-        compress_image = ImageCompress(compression, compressed_name, file_name)
-        # upload_image = ImageUpload(image_name, compressed_name,
-        #                            minioclientaddr, minioaccesskey,
-        #                            miniosecretkey, miniobucket, file_name,
-        #                            compression)
+    def image_resize(self):
+        # resize image partition to specification in template file
+        new_image = f'{self.file_name}_new'
 
-        if image_url:
-            # Download image from url specified
-            ImageDownload(image_url, image_name).download_image()
-            ImageDownload(image_url, image_name).hash_download_image()
+        if search('G', self.image_size):
+            # convert gigabytes to bytes for new file size
+            image_size_b = int(split('G', self.image_size)[0]) * (1024**3)
+        if search('M', self.image_size):
+            # convert megabytes to bytes for new file size
+            image_size_b = int(split('M', self.image_size)[0]) * (1024**2)
 
-        if convert is True and method == 'virt-builder':
-            # Determines if image needs to be converted to
-            #  different format with virt-builder utility(raw, qcow2, etc.)
-            customize_image.build_method()
-        elif method == 'virt-builder':
-            customize_image.build_method()
+        # create new image file for truncation
+        with open(new_image, 'wb') as fh:
+            truncate(new_image, image_size_b)
 
-        if convert is True and method == 'virt-customize':
-            # Determines if image needs to be converted to
-            #  different format with qemu-img utility(raw, qcow2, etc.)
-            convert_image.qemu_convert()
-            if image_size:
-                # Determines if image needs to be resized
-                customize_image.image_resize()
-                customize_image.build_method()
-            else:
-                customize_image.build_method()
-        elif method == 'virt-customize':
-            customize_image.build_method()
+        # call virt resize to expand sda1 partition to
+        #  truncated image's new size
+        call(f'virt-resize --expand /dev/sda1 {self.file_name} {new_image}', shell=True)
 
-        if compression:
-            # Determinese if image needs to
-            #  be compressed based on format specified (xz, gz, bz2)
-            compress_image.compress()
-            hash_image(compressed_name)
-            os.rename(compressed_name, f'{output_dir}/{compressed_name}')
+        # copy newly truncated file to current directory as originally
+        #  named image file and remove temp image_file
+        copy(new_image, self.file_name)
+        remove(new_image)
 
+    def build_method(self):
+        # Determine build method type (virt-customize or virt-builder)
+        if self.method == 'virt-customize':
+            print(f'\nCustomizing {self.image_name} image with virt-customize\
+                  utility...\n')
+            print(f'\nInstalling the following packages:{self.packages}\n')
+            # creates custom user script ran via CLI in virtcustomize
+            create_user_script(self.customization)
+            # user_script = open('user_script.sh', 'r').read()
+            # print(f'\nApplying the following user script:\
+            #       \n {user_script}')
+            # update package cache and install packages
+            call(f'virt-customize -a {self.file_name} -update --install {self.packages}\
+                 --run user_script.sh', shell=True)
+            remove('user_script.sh')
+        elif self.method == 'virt-builder':
+            # update package cache and install packages
+            print(f'\nCustomizing {self.image_name} image with virt-builder utility')
+            print(f'\nInstalling the following packages: {self.packages}\n')
+            # creates custom user script ran via CLI in virtcustomize
+            create_user_script(self.customization)
+            # user_script = open('user_script.sh', 'r').read()
+            # print(f'\nApplying the following user script:\n {user_script}')
+            call(f'virt-builder -v -x {self.image_name} --update --install {self.packages} --run user_script.sh\
+                 --format {self.output_format} --output {self.file_name}', shell=True)
+            remove('user_script.sh')
+
+class ImageCompress:
+    # Compress image to specification in template file (gz, bz2, xz)
+    def __init__(self, compression, compressed_name, file_name):
+        self.compression = compression
+        self.compressed_name = compressed_name
+        self.file_name = file_name
+
+    def compress(self):
+        print(f'\nCompressing image using {self.compression} method....')
+        if self.compression == "gz":
+            with open(self.file_name, 'rb') as file_in, \
+                gzip.open(self.compressed_name, 'wb') as file_out:
+                copyfileobj(file_in, file_out)
+        elif self.compression == "bz2":
+            with open(self.file_name, 'rb') as file_in, \
+                bz2.open(self.compressed_name, 'wb') as file_out:
+                copyfileobj(file_in, file_out)
         else:
-            # Move image to output or named directory
-            hash_image(file_name)
-            os.rename(os.rename(file_name, f'{output_dir}/{file_name}'))
-
-        # Uploads image to minio
-        # upload_image.uploadimagefile()
-
-        # Print hashes for image original download,
-        #  modification, and compression.
+            with open(self.file_name, 'rb') as file_in, \
+                lzma.open(self.compressed_name, 'wb') as file_out:
+                copyfileobj(file_in, file_out)
