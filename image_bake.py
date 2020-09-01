@@ -7,38 +7,26 @@ from image_baker._imagemod import (ImageConvert, ImageCustomize,
 from image_baker._imagetransfer import ImageDownload, ImageUpload
 
 
-# Creates list of files in template directory
-def load_template_dir(template_dir):
-    with scandir(template_dir) as templates:
-        for template in templates:
-            # Loads YAML specification for template file
-            image_config = YamlLoad(template).load_yaml()
-            # Prints build specification
-            print_config(image_config)
-
-# Creates list of files in template directory
-def load_template(template):
-    # Loads YAML specification for template file
-    image_config = YamlLoad(template).load_yaml()
-    # Prints build specification
-    print_config(image_config)
-
-
 @click.command()
 @click.option('--template', help = 'YAML template for single image build specification')
-@click.option('--template_dir', default = './templates/',
-              help = 'Directory of YAML template collection for multiple image builds')
-def main(template, template_dir):
+@click.option('--template_dir', help = 'Directory of YAML template collection for multiple image builds')
+def main():
     if template:
         print(f'Processing {template}')
-        load_template(template)
+        print(YamlLoad(template).load_yaml())
     if template_dir:
-        load_template_dir(template_dir)
-        
+        print(template_dir)
+    
 
 if __name__ == '__main__':
     main()
-
+# # Creates list of files in template directory
+# with scandir('./templates/') as templates:
+#     for template in templates:
+#         # Loads YAML specification for template file
+#         image_config = YamlLoad(template).load_yaml()
+#         # Prints build specification
+#         print_config(image_config)
 
 #         # Parses YAML for configuration items
 #         config_item = YamlParse(image_config)
