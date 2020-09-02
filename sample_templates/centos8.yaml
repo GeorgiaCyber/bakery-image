@@ -8,13 +8,11 @@ convert: true
 
 output_format: raw
 
-compression: gz
+compression:
 
 method: virt-builder
 
 packages:
-    - tcpdump
-    - nmap
 
 customization: |
     #!/bin/bash

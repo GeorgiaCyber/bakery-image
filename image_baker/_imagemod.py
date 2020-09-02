@@ -95,10 +95,10 @@ class ImageCustomize():
             #       \n {user_script}')
             # update package cache and install packages
             if self.packages =='':
-                call(f'virt-customize -a {self.file_name} -update --run user_script.sh', shell=True)
+                call(f'virt-customize -v -x -a {self.file_name} -update --run user_script.sh', shell=True)
             else:
                 print(f'\nInstalling the following packages:{self.packages}\n')
-                call(f'virt-customize -a {self.file_name} -update --install {self.packages}\
+                call(f'virt-customize -v -x -a {self.file_name} -update --install {self.packages}\
                     --run user_script.sh', shell=True)
             remove('user_script.sh')
         elif self.method == 'virt-builder':
