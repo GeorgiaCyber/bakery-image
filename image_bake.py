@@ -1,4 +1,4 @@
-from os import scandir
+import os
 import sys
 from image_baker._yamlparse import YamlLoad, YamlParse, print_config
 from image_baker._imagemod import (ImageConvert, ImageCustomize,
@@ -6,8 +6,27 @@ from image_baker._imagemod import (ImageConvert, ImageCustomize,
 from image_baker._imagetransfer import ImageDownload, ImageUpload
 
 
+# Creates local image directory (temporary)
+if len(sys.argv) > 1:
+    output_dir = os.path.isdir(sys.argv[1])
+    if not output_dir:
+        output_dir = sys.argv[1]
+        os.mkdir(output_dir)
+    else:
+        output_dir = sys.argv[1]
+        print("directory exists")
+else:
+    output_dir = os.path.isdir('./output')
+    if not output_dir:
+        output_dir = './output'
+        os.mkdir(output_dir)
+    else:
+        output_dir = './output'
+        print("directory exists")
+
+
 # Creates list of files in template directory
-with scandir('./templates/') as templates:
+with os.scandir('./templates/') as templates:
     for template in templates:
         # Loads YAML specification for template file
         image_config = YamlLoad(template).load_yaml()
@@ -31,15 +50,15 @@ with scandir('./templates/') as templates:
         image_size = config_item.image_size()
 
         # Sets compressed name from compression format and image name variables
-        compressed_name = "{}.{}".format(image_name, compression)
-        file_name = '{}.{}'.format(image_name, output_format)
+        compressed_name = f'{image_name}.{compression}'
+        file_name = f'{image_name}.{output_format}'
 
         # Minio variables
-        minioclientaddr = sys.argv[1]
-        minioaccesskey = sys.argv[2]
-        miniosecretkey = sys.argv[3]
-        miniobucket = 'images'
-        miniofilepath = '.'
+        # minioclientaddr = sys.argv[1]
+        # minioaccesskey = sys.argv[2]
+        # miniosecretkey = sys.argv[3]
+        # miniobucket = 'images'
+        # miniofilepath = '.'
 
         # '172.17.0.3:9000'
         # 'ITSJUSTANEXAMPLE'
@@ -52,10 +71,10 @@ with scandir('./templates/') as templates:
                                          customization, method,
                                          output_format, file_name, image_size)
         compress_image = ImageCompress(compression, compressed_name, file_name)
-        upload_image = ImageUpload(image_name, compressed_name,
-                                   minioclientaddr, minioaccesskey,
-                                   miniosecretkey, miniobucket, file_name,
-                                   compression)
+        # upload_image = ImageUpload(image_name, compressed_name,
+        #                            minioclientaddr, minioaccesskey,
+        #                            miniosecretkey, miniobucket, file_name,
+        #                            compression)
 
         if image_url:
             # Download image from url specified
@@ -82,14 +101,20 @@ with scandir('./templates/') as templates:
         elif method == 'virt-customize':
             customize_image.build_method()
 
-        if compression:
+        if compression != None:
             # Determinese if image needs to
             #  be compressed based on format specified (xz, gz, bz2)
             compress_image.compress()
             hash_image(compressed_name)
+            os.rename(compressed_name, f'{output_dir}/{compressed_name}')
+            os.remove(file_name)
+        else:
+            # Move image to output or named directory
+            os.rename(file_name, f'{output_dir}/{file_name}')
 
+        
         # Uploads image to minio
-        upload_image.uploadimagefile()
+        # upload_image.uploadimagefile()
 
         # Print hashes for image original download,
         #  modification, and compression.

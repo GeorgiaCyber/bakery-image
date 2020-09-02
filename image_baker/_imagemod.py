@@ -49,7 +49,10 @@ class ImageCustomize():
                  file_name, image_size):
         # Set all common variables for the ImageCustomization class
         self.image_name = image_name
-        self.packages = ",".join(packages)
+        if packages != None:
+            self.packages = ",".join(packages)
+        else:
+            self.packages = ''
         self.customization = customization
         self.method = method
         self.output_format = output_format
@@ -85,27 +88,34 @@ class ImageCustomize():
         if self.method == 'virt-customize':
             print(f'\nCustomizing {self.image_name} image with virt-customize\
                   utility...\n')
-            print(f'\nInstalling the following packages:{self.packages}\n')
             # creates custom user script ran via CLI in virtcustomize
             create_user_script(self.customization)
-            user_script = open('user_script.sh', 'r').read()
-            print(f'\nApplying the following user script:\
-                  \n {user_script}')
+            # user_script = open('user_script.sh', 'r').read()
+            # print(f'\nApplying the following user script:\
+            #       \n {user_script}')
             # update package cache and install packages
-            call(f'virt-customize -a {self.file_name} -update --install {self.packages}\
-                 --run user_script.sh', shell=True)
+            if self.packages =='':
+                call(f'virt-customize -v -x -a {self.file_name} -update --run user_script.sh', shell=True)
+            else:
+                print(f'\nInstalling the following packages:{self.packages}\n')
+                call(f'virt-customize -v -x -a {self.file_name} -update --install {self.packages}\
+                    --run user_script.sh', shell=True)
             remove('user_script.sh')
         elif self.method == 'virt-builder':
             # update package cache and install packages
             print(f'\nCustomizing {self.image_name} image with virt-builder utility')
-            print(f'\nInstalling the following packages: {self.packages}\n')
             # creates custom user script ran via CLI in virtcustomize
             create_user_script(self.customization)
-            user_script = open('user_script.sh', 'r').read()
-            print(f'\nApplying the following user script:\n {user_script}')
-            call(f'virt-builder {self.image_name} --update --install {self.packages} --run user_script.sh\
-                 --format {self.output_format} --output {self.file_name}', shell=True)
-
+            # user_script = open('user_script.sh', 'r').read()
+            # print(f'\nApplying the following user script:\n {user_script}')
+            if self.packages == '':
+                call(f'virt-builder {self.image_name} --update --run user_script.sh\
+                    --format {self.output_format} --output {self.file_name}', shell=True)
+            else:
+                print(f'\nInstalling the following packages: {self.packages}\n')
+                call(f'virt-builder {self.image_name} --update --install {self.packages} --run user_script.sh\
+                    --format {self.output_format} --output {self.file_name}', shell=True)
+            remove('user_script.sh')
 
 class ImageCompress:
     # Compress image to specification in template file (gz, bz2, xz)
