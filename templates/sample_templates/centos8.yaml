@@ -1,0 +1,19 @@
+---
+
+image_name: centos-8.0
+
+compressed: false
+
+convert: true
+
+output_format: raw
+
+compression:
+
+method: virt-builder
+
+packages:
+
+customization: |
+    #!/bin/bash
+    echo "customization completed via virt-builder" > ./custom.txt
