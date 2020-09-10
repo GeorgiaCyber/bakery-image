@@ -2,18 +2,19 @@ import os
 import sys
 import argparse
 from yaml import safe_load
-from image_baker._yamlparse import YamlLoad, YamlParse, print_config
+# from image_baker._yamlparse import YamlLoad, YamlParse, print_config
 
 
-# def load_yaml(template):
-#     with open(template, 'r') as fd:
-#         data = safe_load(fd)
-#     return data
+
+def load_yaml(template):
+    with open(template, 'r') as fd:
+        template_data = safe_load(fd)
+    return template_data
 
 
 def main():
     parser = argparse.ArgumentParser(prog='image_baker', description='Start baking an image.')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode for troubleshooting image_build')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode for troubleshooting image build')
     parser.add_argument('-a', '--all', default='NONE', action='store_true', help='Runs image baker on all template files in the specified directory')
     parser.add_argument('-T', '--type', default='NONE', action='store', choices=['vm', 'docker'], help='Specifies the type of image to build', )
     parser.add_argument('-t', '--template', default='NONE', action='store', help='Specifies template yaml file to build.')
@@ -36,16 +37,46 @@ def main():
     if args.all == 'NONE' and args.template == 'NONE' and args.dir_path == 'NONE' and num_args > 2:
         sys.stderr.write('ERROR: Specify a directory path, template file, or all. Refer to help (--help) if needed.\n')
 
+    if args.dir_path != 'NONE' and args.all:
+        #Bake images for all templates in a given dir path
+        template_list = []
+        templates = os.listdir(args.dir_path)
+        for template in templates:
+            #Creates list of templates in dir path provided
+            template_list.append(f'{args.dir_path}{template}')
+            print(template_list)
+        for template in template_list:
+            #Loads params specified in yaml template for each image
+            print(load_yaml(template))
+
+    if args.template != 'NONE':
+        template = args.template
+        print(load_yaml(template))
+        # for template in template_list:
+        #     print(template)
+        #     print(YamlParse().load_yaml(path, template))
+
+
+
+            # YamlParse.load_yaml(dir_path, template)
+            # print(template_data)
+        
+        # with os.scandir(args.dir_path) as templates:
+        #     for template in templates:
+        #         print(template)
+                # print(templates)
+                # image_template = load_yaml(template)
+            # print(image_template)
 
 
     # args = parser.parse_args()
 
     # template_name = args.template
 
-    # if template_name == 'NONE' and not args.dir_path:
-    #     sys.stderr.write(f'Missing template name or directory:\n {template_name}')
-    #     parser.usage()
-    #     sys.exit(1)
+    if args.template_name == 'NONE' and not args.dir_path:
+        sys.stderr.write(f'Missing template name or directory:\n {args.template_name}')
+        parser.usage()
+        sys.exit(1)
     
     # if template_name not in dirs:
     #     sys.stderr.write(f'ERROR: Image named {template_name} not found.')
