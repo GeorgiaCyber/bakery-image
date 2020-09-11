@@ -18,11 +18,10 @@ def main():
     parser.add_argument('-a', '--all', default='NONE', action='store_true', help='Runs image baker on all template files in the specified directory')
     parser.add_argument('-T', '--type', default='NONE', action='store', choices=['vm', 'docker'], help='Specifies the type of image to build', )
     parser.add_argument('-t', '--template', default='NONE', action='store', help='Specifies template yaml file to build.')
-    parser.add_argument('-d', '--dir_path', default='NONE', action='store', help='Directory path for multiple template yaml files')
-    parser.add_argument('-i', '--input_name', action='store', help='Specifies the input file name for the image.')
+    parser.add_argument('-d', '--dir_path', default='NONE', action='store', metavar=('./some/directory/'), help='Directory path for multiple template yaml files')
+    parser.add_argument('-f', '--format', nargs=2, action='store', metavar=('input_format', 'output_format'), help='specifies the input and output format for image conversion')
     parser.add_argument('-o', '--output_name', action='store', help='Specifies the output file name for the image.')
     parser.add_argument('-r', '--resize', action='store', help='Specifies the the output image size')
-    parser.add_argument('-f', '--output_format', action='store', help='Output format for image (raw, qcow2, etc.)')
     parser.add_argument('-b', '--builder', default='virt-customize', action='store', choices=['virt-customize', 'virt-builder'], help='Specifies the builder to use.')
     parser.add_argument('-c', '--compress', default='NONE', action='store', choices=['gz', 'bz2', 'lzma'], help='Specifies compression and type')
     parser.add_argument('-p', '--packages', action='store', help='Packages to install on the image')
@@ -47,14 +46,19 @@ def main():
             print(template_list)
         for template in template_list:
             #Loads params specified in yaml template for each image
-            print(load_yaml(template))
-
+            loaded_template = load_yaml(template)
+            for k, v in loaded_template.items():
+                print(k, v)
+'''
+break point, kwargs needs to be implemented for parsing through the templates loaded by load_yaml.
+'''
+        
     if args.template != 'NONE':
+        #Bake images for a specifc yaml template
         template = args.template
         print(load_yaml(template))
-        # for template in template_list:
-        #     print(template)
-        #     print(YamlParse().load_yaml(path, template))
+        print(type(template))
+
 
 
 
@@ -73,8 +77,8 @@ def main():
 
     # template_name = args.template
 
-    if args.template_name == 'NONE' and not args.dir_path:
-        sys.stderr.write(f'Missing template name or directory:\n {args.template_name}')
+    if args.template == 'NONE' and not args.dir_path:
+        sys.stderr.write(f'Missing template name or directory:\n {args.template}')
         parser.usage()
         sys.exit(1)
     
