@@ -1,9 +1,12 @@
 import os
 import sys
 import argparse
+import time
+import hashlib
+from tqdm import tqdm
+from requests import get
 from yaml import safe_load
-# from image_baker._yamlparse import YamlLoad, YamlParse, print_config
-
+from subprocess import call
 
 
 def load_yaml(template):
@@ -11,6 +14,54 @@ def load_yaml(template):
         template_data = safe_load(fd)
     return template_data
 
+def parse_template(loaded_template):
+    global image_name, image_url, method, image_url, compression, input_format, output_format, compressed, convert, packages, customization, image_size
+    image_name = loaded_template.get("image_name")
+    method = loaded_template.get("method")
+    image_url = loaded_template.get("image_url")
+    compression = loaded_template.get("compression")
+    input_format = loaded_template.get("input_format")
+    output_format = loaded_template.get("output_format")
+    compressed = loaded_template.get("compressed")
+    convert = loaded_template.get("convert")
+    packages = loaded_template.get("packages")
+    customization = loaded_template.get("customization")
+    image_size = loaded_template.get("image_size")
+
+def hash_image(image_name):
+    # Create hash value for image
+    file = image_name
+    with open(file, 'rb') as file:
+        content = file.read()
+    sha = hashlib.sha256()
+    sha.update(content)
+    hash_file = sha.hexdigest()
+    print('\nSHA256 Hash: {}'.format(hash_file))
+
+def download_image(image_url):
+    # Downloads image from url passed from download_url() if available
+    file = image_url.split('/')[-1]
+    file_request = get(image_url, stream=True, allow_redirects=True)
+    total_size = int(file_request.headers.get('content-length'))
+    initial_pos = 0
+
+    print(f'\nDownloading image from ({image_url}):')
+    with open(file, 'wb') as file_download:
+        with tqdm(total=total_size, unit='it', unit_scale=True,
+                    desc=file, initial=initial_pos,
+                    ascii=True) as progress_bar:
+            for chunk in file_request.iter_content(chunk_size=1024):
+                if chunk:
+                    file_download.write(chunk)
+                    progress_bar.update(len(chunk))
+    os.rename(file, image_name)
+
+def qemu_convert(image_name, input_format, output_format):
+    # Perform qemu image conversion for format type specified
+    if method == 'virt-customize':
+        print(f'\nConverting {image_name} to {output_format} format with qemu-img utility...')
+        call(f'qemu-img convert -f {input_format} -O {output_format} {image_name} {image_name}.{output_format}', shell=True)
+        os.remove(image_name)
 
 def main():
     parser = argparse.ArgumentParser(prog='image_baker', description='Start baking an image.')
@@ -40,24 +91,28 @@ def main():
         #Bake images for all templates in a given dir path
         template_list = []
         templates = os.listdir(args.dir_path)
-        for template in templates:
-            #Creates list of templates in dir path provided
-            template_list.append(f'{args.dir_path}{template}')
-            print(template_list)
+        for item in templates:
+            if item.endswith('.yaml') or item.endswith('.yml'):
+                item = f'{args.dir_path}{item}'
+                template_list.append(item) 
         for template in template_list:
-            #Loads params specified in yaml template for each image
             loaded_template = load_yaml(template)
-            for k, v in loaded_template.items():
-                print(k, v)
+            parse_template(loaded_template)
+            download_image(image_url)
+            hash_image(image_name)
+            if convert is True and method == 'virt-customize':
+                qemu_convert(image_name, input_format, output_format)
+
+
 '''
 break point, kwargs needs to be implemented for parsing through the templates loaded by load_yaml.
 '''
         
-    if args.template != 'NONE':
-        #Bake images for a specifc yaml template
-        template = args.template
-        print(load_yaml(template))
-        print(type(template))
+    # if args.template != 'NONE':
+    #     #Bake images for a specifc yaml template
+    #     template = args.template
+    #     print(load_yaml(template))
+    #     print(type(template))
 
 
 
@@ -77,10 +132,10 @@ break point, kwargs needs to be implemented for parsing through the templates lo
 
     # template_name = args.template
 
-    if args.template == 'NONE' and not args.dir_path:
-        sys.stderr.write(f'Missing template name or directory:\n {args.template}')
-        parser.usage()
-        sys.exit(1)
+    # if args.template == 'NONE' and not args.dir_path:
+    #     sys.stderr.write(f'Missing template name or directory:\n {args.template}')
+    #     parser.usage()
+    #     sys.exit(1)
     
     # if template_name not in dirs:
     #     sys.stderr.write(f'ERROR: Image named {template_name} not found.')
