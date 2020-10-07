@@ -8,7 +8,7 @@ image_size: 10G
 
 compressed: false
 
-convert: true
+conversion: true
 
 input_format: qcow2
 

@@ -4,7 +4,7 @@ image_name: centos-8.0
 
 compressed: false
 
-convert: true
+conversion: true
 
 output_format: raw
 

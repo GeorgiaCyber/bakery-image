@@ -4,7 +4,7 @@ image_name: ubuntu-18.04
 
 compressed: false
 
-convert: true
+conversion: true
 
 output_format: raw
 

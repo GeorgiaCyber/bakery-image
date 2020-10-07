@@ -8,13 +8,13 @@ image_size: 10G
 
 compressed: false
 
-convert: true
+conversion: true
 
 input_format: qcow2
 
 output_format: raw
 
-compression:
+compression: lzma
 
 method: virt-customize
 

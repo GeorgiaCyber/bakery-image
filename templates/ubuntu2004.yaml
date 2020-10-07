@@ -6,7 +6,7 @@ image_url: https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-a
 
 compressed: false
 
-convert: true
+conversion: true
 
 input_format: qcow2
 
