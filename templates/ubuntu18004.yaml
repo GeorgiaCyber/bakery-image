@@ -1,6 +1,6 @@
 ---
 
-image_name: centos-8.0
+image_name: ubuntu-18.04
 
 compressed: false
 
@@ -13,6 +13,7 @@ compression:
 method: virt-builder
 
 packages:
+    - nmap
 
 customization: |
     #!/bin/bash
