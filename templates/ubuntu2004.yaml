@@ -1,0 +1,28 @@
+---
+
+image_name: ubuntu2004
+
+image_url: https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
+
+image_size: 10G
+
+compressed: false
+
+conversion: true
+
+input_format: qcow2
+
+output_format: raw
+
+compression:
+
+method: virt-customize
+
+packages:
+    - xorg
+    - lxqt
+    - sddm
+
+customization: |
+    #!/bin/bash
+    echo "customization completed via virt-customize" > ./custom.txt

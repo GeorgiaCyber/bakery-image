@@ -1,120 +1,230 @@
-import os
-import sys
-from image_baker._yamlparse import YamlLoad, YamlParse, print_config
-from image_baker._imagemod import (ImageConvert, ImageCustomize,
-                                   ImageCompress, hash_image)
-from image_baker._imagetransfer import ImageDownload, ImageUpload
+import os, sys, argparse, time, hashlib, lzma, gzip, bz2
+from tqdm import tqdm
+from requests import get
+from yaml import safe_load
+from subprocess import call
+from re import search, split
+from shutil import copyfileobj, copy, move
 
 
-# Creates local image directory (temporary)
-if len(sys.argv) > 1:
-    output_dir = os.path.isdir(sys.argv[1])
-    if not output_dir:
-        output_dir = sys.argv[1]
-        os.mkdir(output_dir)
-    else:
-        output_dir = sys.argv[1]
-        print("directory exists")
-else:
-    output_dir = os.path.isdir('./output')
-    if not output_dir:
-        output_dir = './output'
-        os.mkdir(output_dir)
-    else:
-        output_dir = './output'
-        print("directory exists")
+def load_yaml(template):
+    """Load template and associate key words with variables globally"""
+    with open(template, 'r') as fd:
+        template_data = safe_load(fd)
+    global image_name, image_url, method, image_url, compression, input_format, output_format, compressed, conversion, packages, customization, image_size, output_name
+    image_name = template_data.get("image_name")
+    method = template_data.get("method")
+    image_url = template_data.get("image_url")
+    compression = template_data.get("compression")
+    input_format = template_data.get("input_format")
+    output_format = template_data.get("output_format")
+    compressed = template_data.get("compressed")
+    conversion = template_data.get("conversion")
+    packages = template_data.get("packages")
+    customization = template_data.get("customization")
+    image_size = template_data.get("image_size")
+    output_name = f'{image_name}.{output_format}'
+
+def hash_file(*args):
+    """Create SHA256 hash for a given file"""
+    with open(*args, 'rb') as file:
+        content = file.read()
+    sha = hashlib.sha256()
+    sha.update(content)
+    sha256_hash = sha.hexdigest()
+    return sha256_hash
+    # print(f'{image_name},  SHA256 Hash: {sha256_hash}')
+
+def build(verbose, output_path):
+    if image_url:
+        ImageTransfer().download_image(image_name, image_url)
+    if conversion:
+        BuildImage().convert(input_format, output_format, image_name, output_name)
+    if image_size:
+        BuildImage().resize(image_size, image_name)
+    if verbose:
+        BuildImage().build_method_v(packages, method, image_name, customization)
+    elif verbose is False:
+        BuildImage().build_method(packages, method, output_name, customization)
+    if compression:
+        BuildImage().compress(compression, output_name)
+    if output_path:
+        ImageTransfer().store_image(image_name, output_path)
+
+class ImageTransfer:
+    def __init__(self, *args):
+        self.image_name = image_name
+        self.image_url = image_url
+
+    def download_image(self, image_name, image_url):
+        """Download image from url"""
+        file = self.image_url.split('/')[-1]
+        file_request = get(self.image_url, stream=True, allow_redirects=True)
+        total_size = int(file_request.headers.get('content-length'))
+        initial_pos = 0
+        print(f'\nDownloading image from ({self.image_url}):')
+        with open(file, 'wb') as file_download:
+            with tqdm(total=total_size, unit='it', unit_scale=True,
+                        desc=file, initial=initial_pos,
+                        ascii=True) as progress_bar:
+                for chunk in file_request.iter_content(chunk_size=1024):
+                    if chunk:
+                        file_download.write(chunk)
+                        progress_bar.update(len(chunk))
+        os.rename(file, self.image_name)
+        print(f'\nImage download finished.\n')
+        print(f'{self.image_name}\nSHA256 Hash: {hash_file(self.image_name)}')
+
+    def store_image(self, image_name, output_path):
+        """Create directory for image storage"""
+        if not os.path.exists(f'{output_path}'):
+            os.makedirs(f'{output_path}')
+        move(f'{self.image_name}', f'{output_path}'f'/{self.image_name}')
+        print(f'\nImage \'{self.image_name}\' stored at \'{output_path}\'')
 
 
-# Creates list of files in template directory
-with os.scandir('./templates/') as templates:
-    for template in templates:
-        # Loads YAML specification for template file
-        image_config = YamlLoad(template).load_yaml()
-        # Prints build specification
-        print_config(image_config)
+    '''Placeholder for upload functions (glance, amazon s3, minio, dockerhub, etc.'''
+    # def upload_glance(self):
 
-        # Parses YAML for configuration items
-        config_item = YamlParse(image_config)
 
-        # Assigns each configuration item to a variable
-        image_name = config_item.image_name()
-        method = config_item.method()
-        image_url = config_item.image_url()
-        input_format = config_item.input_format()
-        output_format = config_item.output_format()
-        compressed = config_item.compressed()
-        convert = config_item.convert()
-        packages = config_item.packages()
-        customization = config_item.customization()
-        compression = config_item.compression()
-        image_size = config_item.image_size()
+class BuildImage:
+    def __init__(self, *args):
+        self.image_name = image_name
+        self.output_name = output_name
+        self.method = method
+        self.input_format = input_format
+        self.output_format = output_format
+        self.image_size = image_size
+        self.conversion = conversion
+        self.compression = compression
+        self.packages = packages
+        if self.packages :
+            self.packages = ",".join(self.packages)
+        self.customization = customization
 
-        # Sets compressed name from compression format and image name variables
-        compressed_name = f'{image_name}.{compression}'
-        file_name = f'{image_name}.{output_format}'
+    def create_user_script(self, customization):
+        """Create custom user script file"""
+        create_script = open('user_script.sh', 'w')
+        create_script.write(self.customization)
+        create_script.close()
 
-        # Minio variables
-        # minioclientaddr = sys.argv[1]
-        # minioaccesskey = sys.argv[2]
-        # miniosecretkey = sys.argv[3]
-        # miniobucket = 'images'
-        # miniofilepath = '.'
+    def convert(self, input_format, output_format, image_name, output_name):
+        """Perform qemu image conversion for format type specified"""
+        print(f'\nConverting {self.image_name} to {self.output_format} format with qemu-img utility...')
+        call(f'qemu-img convert -f {self.input_format} -O {self.output_format} {self.image_name} {self.output_name}', shell=True)
+        os.rename(f'{self.output_name}',f'{self.image_name}')
 
-        # '172.17.0.3:9000'
-        # 'ITSJUSTANEXAMPLE'
-        # 'EXAMPLEKEY'
+    def resize(self, image_name, image_size):
+        """Resize image partition to specification in template file"""
+        new_image = f'{self.image_name}_new'
+        if search('G', self.image_size):
+            image_size_b = int(split('G', self.image_size)[0]) * (1024**3)
+        if search('M', self.image_size):
+            image_size_b = int(split('M', self.image_size)[0]) * (1024**2)
+        with open(new_image, 'wb') as fh:
+            os.truncate(new_image, image_size_b)
+        call(f'virt-resize --expand /dev/sda1 {self.image_name} {new_image}', shell=True)
+        copy(new_image, self.image_name)
+        os.remove(new_image)
+        print(f'\nImage finished resizing using virt-resize\n')
+        print(f'{self.image_name}\nSHA256 Hash: {hash_file(self.image_name)}')
 
-        # Assigns configuration item variables for each class method used.
-        convert_image = ImageConvert(image_name, image_url,
-                                     input_format, output_format, file_name)
-        customize_image = ImageCustomize(image_name, packages,
-                                         customization, method,
-                                         output_format, file_name, image_size)
-        compress_image = ImageCompress(compression, compressed_name, file_name)
-        # upload_image = ImageUpload(image_name, compressed_name,
-        #                            minioclientaddr, minioaccesskey,
-        #                            miniosecretkey, miniobucket, file_name,
-        #                            compression)
-
-        if image_url:
-            # Download image from url specified
-            ImageDownload(image_url, image_name).download_image()
-            ImageDownload(image_url, image_name).hash_download_image()
-
-        if convert is True and method == 'virt-builder':
-            # Determines if image needs to be converted to
-            #  different format with virt-builder utility(raw, qcow2, etc.)
-            customize_image.build_method()
-        elif method == 'virt-builder':
-            customize_image.build_method()
-
-        if convert is True and method == 'virt-customize':
-            # Determines if image needs to be converted to
-            #  different format with qemu-img utility(raw, qcow2, etc.)
-            convert_image.qemu_convert()
-            if image_size:
-                # Determines if image needs to be resized
-                customize_image.image_resize()
-                customize_image.build_method()
+    def build_method(self, packages, method, image_name, customization):
+        """Determine build method and execute build"""
+        BuildImage().create_user_script(self.customization)
+        if self.method == 'virt-customize':
+            print(f'\n{self.image_name} image is being created with virt-customize')
+            if self.packages :
+                call(f'virt-customize -a {self.image_name} -update --install {self.packages} --run user_script.sh', shell=True)
             else:
-                customize_image.build_method()
-        elif method == 'virt-customize':
-            customize_image.build_method()
-
-        if compression != None:
-            # Determinese if image needs to
-            #  be compressed based on format specified (xz, gz, bz2)
-            compress_image.compress()
-            hash_image(compressed_name)
-            os.rename(compressed_name, f'{output_dir}/{compressed_name}')
-            os.remove(file_name)
+                call(f'virt-customize -a {self.image_name} -update --run user_script.sh', shell=True)
         else:
-            # Move image to output or named directory
-            os.rename(file_name, f'{output_dir}/{file_name}')
+            print(f'\n{self.image_name} image is being created with virt-builder')
+            if self.packages :
+                call(f'virt-builder {self.image_name} --update --run user_script.sh\
+                    --format {self.output_format} --output {self.output_name}', shell=True)
+            else:
+                call(f'virt-builder {self.image_name} --update --install {self.packages} --run user_script.sh\
+                    --format {self.output_format} --output {self.output_name}', shell=True)
+            os.rename(f'{self.output_name}',f'{self.image_name}')
+        os.remove('user_script.sh')
 
-        
-        # Uploads image to minio
-        # upload_image.uploadimagefile()
+    def build_method_v(self, packages, method, image_name, customization):
+        """Determine build method and execute build in verbose mode"""
+        BuildImage().create_user_script(self.customization)
+        if self.method == 'virt-customize':
+            print(f'\n{self.image_name} image is being created with virt-customize in VERBOSE mode')
+            if self.packages :
+                call(f'virt-customize -v -x -a {self.image_name} -update --install {self.packages} --run user_script.sh', shell=True)
+            else:
+                call(f'virt-customize -v -x -a {self.image_name} -update --run user_script.sh', shell=True)
+        else:
+            print(f'\n{self.image_name} image is being created with virt-builder in VERBOSE mode')
+            if self.packages :
+                call(f'virt-builder -v -x {self.image_name} --update --run user_script.sh\
+                    --format {self.output_format} --output {self.output_name}', shell=True)
+            else:
+                call(f'virt-builder -v -x {self.image_name} --update --install {self.packages} --run user_script.sh\
+                    --format {self.output_format} --output {self.output_name}', shell=True)
+            # os.remove(self.image_name)
+            os.rename(f'{self.output_name}',f'{self.image_name}')
+        os.remove('user_script.sh')
 
-        # Print hashes for image original download,
-        #  modification, and compression.
+    def compress(self, compression, image_name):
+        """Compress image to specification in template file (gz, bz2, xz)"""
+        print(f'\nCompressing image using {self.compression} method....')
+        if self.compression == "gz":
+            with open(self.image_name, 'rb') as file_in, \
+                gzip.open(f'{self.image_name}.{self.compression}', 'wb') as file_out:
+                copyfileobj(file_in, file_out)
+        elif self.compression == "bz2":
+            with open(self.image_name, 'rb') as file_in, \
+                bz2.open(f'{self.image_name}.{self.compression}', 'wb') as file_out:
+                copyfileobj(file_in, file_out)
+        else:
+            with open(self.image_name, 'rb') as file_in, \
+                lzma.open(f'{self.image_name}.lzma', 'wb') as file_out:
+                copyfileobj(file_in, file_out)
+
+def main():
+    """CLI Parsing"""
+    parser = argparse.ArgumentParser(prog='image_baker', description='Start baking an image.')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode for troubleshooting image build')
+    parser.add_argument('-t', '--template', action='store', help='Specifies template yaml file to build.')
+    parser.add_argument('-d', '--dir_path', action='store', metavar=('./some/directory/'), help='Directory path for multiple template yaml files')
+    parser.add_argument('-o', '--output_path', action='store', metavar=('./some/directory/'), help='Directory path to store image output', required=True)
+    num_args = len(sys.argv)
+    args = parser.parse_args()
+
+    """Error Handling"""
+    if num_args < 2:
+        sys.stderr.write('ERROR: No options were present, refer to help (--help) if needed.\n')
+    if args.template is None and args.dir_path is None and num_args > 2:
+        sys.stderr.write('ERROR: Specify a directory path or template file. Refer to help (--help) if needed.\n')
+
+    """Build using a template directory:"""
+    if args.dir_path:
+        template_list = [f'{args.dir_path}/{item}' for item in os.listdir(args.dir_path) if item.endswith('.yaml') or item.endswith('.yml')]
+        print(template_list)
+        for template in template_list:
+            load_yaml(template)
+            build(args.verbose, args.output_path)
+
+    """Build using a single template"""
+    if args.template:
+        load_yaml(args.template)
+        build(args.verbose, args.output_path)
+    
+    """Calculate sha256sum of images and output to file"""
+    if args.output_path:
+        image_list = [f'{args.output_path}/{image}' for image in os.listdir(args.output_path)]
+        print(image_list)
+        if os.path.isfile(f'{args.output_path}/image_hashes'):
+            write_hash = open(f'{args.output_path}/image_hashes', 'a')
+        else:
+            write_hash = open(f'{args.output_path}/image_hashes', 'x')
+        for image in image_list:
+                write_hash.write(f'{image}, {hash_file(image)}\n')
+
+if __name__ == '__main__':
+    sys.exit(main())

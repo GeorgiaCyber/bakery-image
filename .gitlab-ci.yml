@@ -4,14 +4,14 @@ stages:
   - Lint
   - Test
   - Build
-  - Final_Test
-  - Upload
+  # - Final_Test
+  # - Upload
 
 .lint:
   stage: Lint
   image: gacybercenter/gacyber-lint:latest
-  tags:
-    - docker
+  # tags:
+  #   - docker
 
 mypy:
   extends: .lint
@@ -46,13 +46,13 @@ dockerlint:
 .test:
   stage: Test
   image: gacybercenter/image-bakery:latest
-  tags:
-    - docker
+  # tags:
+  #   - docker
 
 minio_create_bucket:
   stage: Test
-  tags:
-    - docker
+  # tags:
+  #   - docker
   script: |
     ./mc --version
     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
@@ -98,23 +98,23 @@ build_all:
     untracked: true
     expire_in: 2 days
 
-.final_test:
-  stage: Final_Test
-  image: gacybercenter/image-bakery:latest
-  tags:
-    - docker
+# .final_test:
+#   stage: Final_Test
+#   image: gacybercenter/image-bakery:latest
+#   tags:
+#     - docker
 
-minio_img_verify:
-  extends: .final_test
-  script: |
-    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    ./mc ls myminio/images > minio_image_inventory.txt
-  artifacts:
-    when: on_success
-    paths:
-      - minio_image_inventory.txt
-    untracked: true
-    expire_in: 2 weeks
+# minio_img_verify:
+#   extends: .final_test
+#   script: |
+#     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+#     ./mc ls myminio/images > minio_image_inventory.txt
+#   artifacts:
+#     when: on_success
+#     paths:
+#       - minio_image_inventory.txt
+#     untracked: true
+#     expire_in: 2 weeks
 
 # miniotest:
 #   stage: Test
@@ -130,59 +130,6 @@ minio_img_verify:
 #     ./mc ls myminio/images
 #   allow_failure: true
 
-# .download:
-#   stage: Download
-#   image: gacybercenter/image-bakery:latest
-#   script: |
-#     echo $SHELL
-#     ls -la
-#     pwd
-
-# image_download:
-#   extends: .download
-#   script: |
-#     python3 image_bake.py Download
-#   artifacts:
-#     expire_in:  1 day
-
-# .modification:
-#   stage: Modification
-#   image: gacybercenter/image-bakery:latest
-#   script: |
-#     echo $SHELL
-#     ls -la
-#     pwd
-
-# image_convert:
-#   extends: .modification
-#   script: |
-#     python3 image_bake.py modification
-
-# image_resize:
-#   extends: .modification
-#   script: |
-#     python3 image_bake.py resize
-
-# .customization:
-#   stage: Customization
-#   image: gacybercenter/image-bakery:latest
-#   script: |
-#     echo $SHELL
-#     ls -la
-#     pwd
-
-# virt_customize:
-#   extends: .customization
-#   image: gacybercenter/image-bakery:latest
-#   script: |
-#     python3 image_bake.py virt_customize
-
-# virt_builder:
-#   extends: .customization
-#   image: gacybercenter/image-bakery:latest
-#   script: |
-#     python3 image_bake.py virt_builder
-
 # .upload:
 #   stage: Upload
 #   image: gacybercenter/image-bakery:latest
@@ -191,7 +138,4 @@ minio_img_verify:
 #     ls -la
 #     pwd
 
-# minio_upload:
-#   extends: .upload
-#   script: |
-#     python3 image_bake.py minio_upload
+

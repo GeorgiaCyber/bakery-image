@@ -1,10 +1,12 @@
 ---
 
-image_name: ubuntu-18.04
+image_name: centos-8.0
 
 compressed: false
 
-convert: true
+# conversion: true
+
+size: 4G
 
 output_format: raw
 
@@ -13,6 +15,7 @@ compression:
 method: virt-builder
 
 packages:
+    - ipcalc
 
 customization: |
     #!/bin/bash
