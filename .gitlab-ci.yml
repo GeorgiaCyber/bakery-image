@@ -2,8 +2,8 @@
 
 stages:
   - Lint
-  - Test
-  - Build
+  # - Test
+  # - Build
   # - Final_Test
   # - Upload
 
@@ -43,60 +43,60 @@ dockerlint:
   script: |
     dockerlint
  
-.test:
-  stage: Test
-  image: gacybercenter/image-bakery:latest
-  # tags:
-  #   - docker
+# .test:
+#   stage: Test
+#   image: gacybercenter/image-bakery:latest
+#   # tags:
+#   #   - docker
 
-minio_create_bucket:
-  stage: Test
-  # tags:
-  #   - docker
-  script: |
-    ./mc --version
-    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    ./mc mb myminio/images
-  allow_failure: true
+# minio_create_bucket:
+#   stage: Test
+#   # tags:
+#   #   - docker
+#   script: |
+#     ./mc --version
+#     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+#     ./mc mb myminio/images
+#   allow_failure: true
 
 
-minio_avail:
-  extends: .test
-  script: |
-    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    ./mc ls myminio/images
+# minio_avail:
+#   extends: .test
+#   script: |
+#     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+#     ./mc ls myminio/images
 
-minio_del_images:
-  extends: .test
-  script: |
-    ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
-    ./mc ls myminio/images
-    ./mc ls myminio/images | awk '{print $5}' > image_list.txt
-    while read i; do ./mc rm myminio/images/$i; done < image_list.txt
-    ./mc ls myminio/images
-  only:
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /delete_images/
+# minio_del_images:
+#   extends: .test
+#   script: |
+#     ./mc config host add myminio $MINIO_URL $MINIO_A_KEY $MINIO_S_KEY
+#     ./mc ls myminio/images
+#     ./mc ls myminio/images | awk '{print $5}' > image_list.txt
+#     while read i; do ./mc rm myminio/images/$i; done < image_list.txt
+#     ./mc ls myminio/images
+#   only:
+#     variables:
+#       - $CI_COMMIT_MESSAGE =~ /delete_images/
 
-.build:
-  stage: Build
-  image: gacybercenter/image-bakery:latest
-  tags:
-    - docker
+# .build:
+#   stage: Build
+#   image: gacybercenter/image-bakery:latest
+#   tags:
+#     - docker
 
-build_all:
-  extends: .build
-  script: |
-    python3 image_bake.py $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
-  only:
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /build_all/
-  artifacts:
-    when: on_success
-    paths:
-      - images/
-    untracked: true
-    expire_in: 2 days
+# build_all:
+#   extends: .build
+#   script: |
+#     python3 image_bake.py $MINIO_ADDR $MINIO_A_KEY $MINIO_S_KEY
+#   only:
+#     variables:
+#       - $CI_COMMIT_MESSAGE =~ /build_all/
+#   artifacts:
+#     when: on_success
+#     paths:
+#       - images/
+#     untracked: true
+#     expire_in: 2 days
 
 # .final_test:
 #   stage: Final_Test
