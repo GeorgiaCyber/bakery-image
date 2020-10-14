@@ -7,5 +7,5 @@ RUN apt-get -qq install npm libguestfs-tools python3-pip wget
 RUN pip3 install pyyaml requests tqdm minio
 RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc
 RUN chmod +x mc
-
+RUN wget https://gitlab.com/gacybercenter/image-bakery/-/raw/master/image_bake.py
 CMD ["/bin/bash", "tail -f /var/log/messages"]
