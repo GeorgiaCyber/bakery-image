@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 import os, sys, argparse, time, hashlib, lzma, gzip, bz2
 from tqdm import tqdm
 from requests import get
@@ -38,19 +36,19 @@ def hash_file(*args):
     # print(f'{image_name},  SHA256 Hash: {sha256_hash}')
 
 def build(verbose, output_path):
-    if image_url is not None:
+    if image_url:
         ImageTransfer().download_image(image_name, image_url)
-    if conversion is True:
+    if conversion:
         BuildImage().convert(input_format, output_format, image_name, output_name)
-    if image_size is not None:
+    if image_size:
         BuildImage().resize(image_size, image_name)
-    if verbose is True:
+    if verbose:
         BuildImage().build_method_v(packages, method, image_name, customization)
     elif verbose is False:
         BuildImage().build_method(packages, method, output_name, customization)
-    if compression is not None:
+    if compression:
         BuildImage().compress(compression, output_name)
-    if output_path is not None:
+    if output_path:
         ImageTransfer().store_image(image_name, output_path)
 
 class ImageTransfer:
@@ -100,7 +98,7 @@ class BuildImage:
         self.conversion = conversion
         self.compression = compression
         self.packages = packages
-        if self.packages is not None:
+        if self.packages :
             self.packages = ",".join(self.packages)
         self.customization = customization
 
@@ -136,13 +134,13 @@ class BuildImage:
         BuildImage().create_user_script(self.customization)
         if self.method == 'virt-customize':
             print(f'\n{self.image_name} image is being created with virt-customize')
-            if self.packages is not None:
+            if self.packages :
                 call(f'virt-customize -a {self.image_name} -update --install {self.packages} --run user_script.sh', shell=True)
             else:
                 call(f'virt-customize -a {self.image_name} -update --run user_script.sh', shell=True)
         else:
             print(f'\n{self.image_name} image is being created with virt-builder')
-            if self.packages is not None:
+            if self.packages :
                 call(f'virt-builder {self.image_name} --update --run user_script.sh\
                     --format {self.output_format} --output {self.output_name}', shell=True)
             else:
@@ -156,13 +154,13 @@ class BuildImage:
         BuildImage().create_user_script(self.customization)
         if self.method == 'virt-customize':
             print(f'\n{self.image_name} image is being created with virt-customize in VERBOSE mode')
-            if self.packages is not None:
+            if self.packages :
                 call(f'virt-customize -v -x -a {self.image_name} -update --install {self.packages} --run user_script.sh', shell=True)
             else:
                 call(f'virt-customize -v -x -a {self.image_name} -update --run user_script.sh', shell=True)
         else:
             print(f'\n{self.image_name} image is being created with virt-builder in VERBOSE mode')
-            if self.packages is not None:
+            if self.packages :
                 call(f'virt-builder -v -x {self.image_name} --update --run user_script.sh\
                     --format {self.output_format} --output {self.output_name}', shell=True)
             else:
@@ -188,14 +186,13 @@ class BuildImage:
                 lzma.open(f'{self.image_name}.lzma', 'wb') as file_out:
                 copyfileobj(file_in, file_out)
 
-
 def main():
     """CLI Parsing"""
     parser = argparse.ArgumentParser(prog='image_baker', description='Start baking an image.')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode for troubleshooting image build')
     parser.add_argument('-t', '--template', action='store', help='Specifies template yaml file to build.')
     parser.add_argument('-d', '--dir_path', action='store', metavar=('./some/directory/'), help='Directory path for multiple template yaml files')
-    parser.add_argument('-o', '--output_path', action='store', metavar=('./some/directory/'), help='Directory path to store image output')
+    parser.add_argument('-o', '--output_path', action='store', metavar=('./some/directory/'), help='Directory path to store image output', required=True)
     num_args = len(sys.argv)
     args = parser.parse_args()
 
@@ -206,34 +203,28 @@ def main():
         sys.stderr.write('ERROR: Specify a directory path or template file. Refer to help (--help) if needed.\n')
 
     """Build using a template directory:"""
-    if args.dir_path is not None:
-        template_list = []
-        for item in os.listdir(args.dir_path):
-            if item.endswith('.yaml') or item.endswith('.yml'):
-                item = f'{args.dir_path}/{item}'
-                template_list.append(item)
+    if args.dir_path:
+        template_list = [f'{args.dir_path}/{item}' for item in os.listdir(args.dir_path) if item.endswith('.yaml') or item.endswith('.yml')]
+        print(template_list)
         for template in template_list:
             load_yaml(template)
             build(args.verbose, args.output_path)
 
     """Build using a single template"""
-    if args.template is not None:
+    if args.template:
         load_yaml(args.template)
         build(args.verbose, args.output_path)
     
     """Calculate sha256sum of images and output to file"""
-    if args.output_path is not None:
-        image_list = []
-        for image in os.listdir(args.output_path):
-            image = f'{args.output_path}/{image}'
-            image_list.append(image)
-        if os.path.exists(f'{args.output_path}/image_hashes'):
-            print('exists')
+    if args.output_path:
+        image_list = [f'{args.output_path}/{image}' for image in os.listdir(args.output_path)]
+        print(image_list)
+        if os.path.isfile(f'{args.output_path}/image_hashes'):
             write_hash = open(f'{args.output_path}/image_hashes', 'a')
         else:
             write_hash = open(f'{args.output_path}/image_hashes', 'x')
         for image in image_list:
-                write_hash.write(f'{image_name}, {hash_file(image)}')
+                write_hash.write(f'{image}, {hash_file(image)}\n')
 
 if __name__ == '__main__':
     sys.exit(main())
