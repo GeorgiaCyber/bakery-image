@@ -42,7 +42,7 @@ dockerlint:
   extends: .lint
   script: |
     dockerlint
- 
+
 # .test:
 #   stage: Test
 #   image: gacybercenter/image-bakery:latest
@@ -137,5 +137,3 @@ dockerlint:
 #     echo $SHELL
 #     ls -la
 #     pwd
-
-
