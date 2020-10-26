@@ -19,10 +19,12 @@ compression:
 method: virt-customize
 
 packages:
-    - xorg
     - lxqt
-    - sddm
 
 customization: |
     #!/bin/bash
     echo "customization completed via virt-customize" > ./custom.txt
+    rm /usr/share/xsessions/ubuntu.desktop
+    echo "blacklist floppy" /etc/modprobe.d/my-blacklist.conf
+    grub-install /dev/sda
+    update-grub
