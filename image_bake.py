@@ -1,3 +1,4 @@
+""" Image Baker """
 import os
 import sys
 import argparse
@@ -5,13 +6,12 @@ import hashlib
 import lzma
 import gzip
 import bz2
-import pathlib
+from re import search, split
+from subprocess import call
+from shutil import copyfileobj, copy, move
 from tqdm import tqdm
 from requests import get
 from yaml import safe_load
-from subprocess import call
-from re import search, split
-from shutil import copyfileobj, copy, move
 
 
 def hash_file(*args):
@@ -24,7 +24,9 @@ def hash_file(*args):
     return sha256_hash
 
 def load_dir(dir_path):
-    template_list = [f'{dir_path}/{item}' for item in os.listdir(dir_path) if item.endswith('.yaml') or item.endswith('.yml') or item.endswith('.sls')]
+    """Load template directory"""
+    template_list = [f'{dir_path}/{item}' for item in os.listdir(dir_path)\
+                     if item.endswith('.yaml') or item.endswith('.yml') or item.endswith('.sls')]
     return template_list
 
 def hash_images(output_path):
@@ -35,7 +37,7 @@ def hash_images(output_path):
     else:
         write_hash = open(f'{output_path}/image_hashes', 'x')
     for image in image_list:
-            write_hash.write(f'{image}, {hash_file(image)}\n')
+        write_hash.write(f'{image}, {hash_file(image)}\n')
 
 def bake(template, output_path, verbose):
     BuildImage(template).download()
@@ -77,8 +79,8 @@ class BuildImage:
             print(f'\nDownloading image from ({self.image_url}):')
             with open(file, 'wb') as file_download:
                 with tqdm(total=total_size, unit='it', unit_scale=True,
-                            desc=file, initial=initial_pos,
-                            ascii=True) as progress_bar:
+                          desc=file, initial=initial_pos,
+                          ascii=True) as progress_bar:
                     for chunk in file_request.iter_content(chunk_size=1024):
                         if chunk:
                             file_download.write(chunk)
@@ -92,9 +94,11 @@ class BuildImage:
             pass
         elif self.convert and self.method == 'virt-customize':
             """Perform qemu image conversion for format type specified"""
-            print(f'\nConverting {self.image_name} to {self.output_format} format with qemu-img utility...')
-            call(f'qemu-img convert -f {self.input_format} -O {self.output_format} {self.image_name} {self.output_name}', shell=True)
-            os.rename(f'{self.output_name}',f'{self.image_name}')
+            print(f'\nConverting {self.image_name} to {self.output_format}\
+                  format with qemu-img utility...')
+            call(f'qemu-img convert -f {self.input_format} -O {self.output_format}\
+                 {self.image_name} {self.output_name}', shell=True)
+            os.rename(f'{self.output_name}', f'{self.image_name}')
         else:
             pass
 
@@ -115,14 +119,13 @@ class BuildImage:
             call(f'virt-resize --expand /dev/sda1 {self.image_name} {new_image}', shell=True)
             copy(new_image, self.image_name)
             os.remove(new_image)
-            print(f'\nImage finished resizing using virt-resize\n')
+            print('\nImage finished resizing using virt-resize\n')
             print(f'{self.image_name}\nSHA256 Hash: {hash_file(self.image_name)}')
         else:
             pass
 
     def build_method(self, verbose):
         """Determine build method and execute build"""
-        """Create custom user script file"""
         create_script = open('user_script.sh', 'w')
         create_script.write(self.customization)
         create_script.close()
@@ -130,33 +133,39 @@ class BuildImage:
         if self.method == 'virt-customize' and verbose:
             print(f'\n{self.image_name} image is being created with virt-customize in VERBOSE mode')
             if self.packages:
-                call(f'virt-customize -v -x -a {self.image_name} -update --install {self.packages} --run user_script.sh', shell=True)
+                call(f'virt-customize -v -x -a {self.image_name} -update\
+                     --install {self.packages} --run user_script.sh', shell=True)
             else:
-                call(f'virt-customize -v -x -a {self.image_name} -update --run user_script.sh', shell=True)
+                call(f'virt-customize -v -x -a {self.image_name} -update\
+                     --run user_script.sh', shell=True)
         elif self.method == 'virt-builder' and verbose:
             print(f'\n{self.image_name} image is being created with virt-builder in VERBOSE mode')
-            if self.packages :
+            if self.packages:
                 call(f'virt-builder -v -x {self.image_name} --update --run user_script.sh\
-                    --format {self.output_format} --output {self.output_name}', shell=True)
+                     --format {self.output_format} --output {self.output_name}', shell=True)
             else:
-                call(f'virt-builder -v -x {self.image_name} --update --install {self.packages} --run user_script.sh\
-                    --format {self.output_format} --output {self.output_name}', shell=True)
-            os.rename(f'{self.output_name}',f'{self.image_name}')
+                call(f'virt-builder -v -x {self.image_name} --update --install {self.packages}\
+                      --run user_script.sh --format {self.output_format}\
+                      --output {self.output_name}', shell=True)
+            os.rename(f'{self.output_name}', f'{self.image_name}')
         elif self.method == 'virt-customize' and verbose is False:
             print(f'\n{self.image_name} image is being created with virt-customize')
-            if self.packages :
-                call(f'virt-customize -a {self.image_name} -update --install {self.packages} --run user_script.sh', shell=True)
+            if self.packages:
+                call(f'virt-customize -a {self.image_name} -update --install {self.packages}\
+                      --run user_script.sh', shell=True)
             else:
-                call(f'virt-customize -a {self.image_name} -update --run user_script.sh', shell=True)
+                call(f'virt-customize -a {self.image_name} -update\
+                     --run user_script.sh', shell=True)
         elif self.method == 'virt-builder' and verbose is False:
             print(f'\n{self.image_name} image is being created with virt-builder')
-            if self.packages :
+            if self.packages:
                 call(f'virt-builder {self.image_name} --update --run user_script.sh\
                     --format {self.output_format} --output {self.output_name}', shell=True)
             else:
-                call(f'virt-builder {self.image_name} --update --install {self.packages} --run user_script.sh\
-                    --format {self.output_format} --output {self.output_name}', shell=True)
-            os.rename(f'{self.output_name}',f'{self.image_name}')
+                call(f'virt-builder {self.image_name} --update --install {self.packages}\
+                     --run user_script.sh --format {self.output_format}\
+                     --output {self.output_name}', shell=True)
+            os.rename(f'{self.output_name}', f'{self.image_name}')
         os.remove('user_script.sh')
 
     def compress(self):
@@ -189,25 +198,31 @@ class BuildImage:
 def main():
     """CLI Parsing"""
     parser = argparse.ArgumentParser(prog='image_baker', description='Start baking an image.')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode for troubleshooting image build')
-    parser.add_argument('-t', '--template', action='store', help='Specifies template yaml file to build.')
-    parser.add_argument('-d', '--dir_path', action='store', metavar=('./some/directory/'), help='Directory path for multiple template yaml files')
-    parser.add_argument('-o', '--output_path', action='store', metavar=('./some/directory/'), help='Directory path to store image output', required=True)
+    parser.add_argument('-v', '--verbose', action='store_true',\
+                        help='Verbose mode for troubleshooting image build')
+    parser.add_argument('-t', '--template', action='store',\
+                        help='Specifies template yaml file to build.')
+    parser.add_argument('-d', '--dir_path', action='store', metavar=('./some/directory/'),\
+                        help='Directory path for multiple template yaml files')
+    parser.add_argument('-o', '--output_path', action='store', metavar=('./some/directory/'),\
+                        help='Directory path to store image output', required=True)
     num_args = len(sys.argv)
     args = parser.parse_args()
 
-    """Error Handling"""
+    #Error Handling
     if num_args < 2:
         sys.stderr.write('ERROR: No options were present, refer to help (--help) if needed.\n')
     if args.template is None and args.dir_path is None and num_args > 2:
-        sys.stderr.write('ERROR: Specify a directory path or template file. Refer to help (--help) if needed.\n')
+        sys.stderr.write('ERROR: Specify a directory path or template file.\
+                         Refer to help (--help) if needed.\n')
     if args.output_path is None:
-        sys.stderr.write('ERROR: Specify a directory path for image output. Refer to help (--help) if needed.\n')
+        sys.stderr.write('ERROR: Specify a directory path for image output.\
+                         Refer to help (--help) if needed.\n')
 
-    """ Build using single template """
+    #Build using single template
     if args.template:
         bake(args.template, args.output_path, args.verbose)
-    """Build using a template directory:"""
+    #Build using a template directory
     if args.dir_path:
         for template in load_dir(args.dir_path):
             bake(template, args.output_path, args.verbose)
