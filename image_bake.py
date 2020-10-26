@@ -23,11 +23,13 @@ def hash_file(*args):
     sha256_hash = sha.hexdigest()
     return sha256_hash
 
+
 def load_dir(dir_path):
     """Load template directory"""
-    template_list = [f'{dir_path}/{item}' for item in os.listdir(dir_path)\
+    template_list = [f'{dir_path}/{item}' for item in os.listdir(dir_path)
                      if item.endswith('.yaml') or item.endswith('.yml') or item.endswith('.sls')]
     return template_list
+
 
 def hash_images(output_path):
     """Calculate sha256sum of images and output to file"""
@@ -38,6 +40,7 @@ def hash_images(output_path):
         write_hash = open(f'{output_path}/image_hashes', 'x')
     for image in image_list:
         write_hash.write(f'{image}, {hash_file(image)}\n')
+
 
 def bake(template, output_path, verbose):
     BuildImage(template).download()
