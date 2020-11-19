@@ -41,6 +41,10 @@ def hash_images(output_path):
     for image in image_list:
         write_hash.write(f'{image}, {hash_file(image)}\n')
 
+def load_yaml(template):
+    with open(template, 'r') as fd:
+        template_data = safe_load(fd)
+    return template_data
 
 def bake(template, output_path, verbose):
     BuildImage(template).download()
@@ -53,20 +57,17 @@ def bake(template, output_path, verbose):
 
 class BuildImage:
     def __init__(self, template):
-        self.template = template
-        with open(self.template, 'r') as fd:
-            template_data = safe_load(fd)
-        self.image_name = template_data.get("image_name")
-        self.image_size = template_data.get("image_size")
-        self.image_url = template_data.get("image_url")
-        self.method = template_data.get("method")
-        self.customization = template_data.get("customization")
-        self.input_format = template_data.get("input_format")
-        self.output_format = template_data.get("output_format")
-        self.downloadimage_size = template_data.get("image_size")
-        self.conversion = template_data.get("conversion")
-        self.compression = template_data.get("compression")
-        self.packages = template_data.get("packages")
+        self.image_name = load_yaml(template).get("image_name")
+        self.image_size = load_yaml(template).get("image_size")
+        self.image_url = load_yaml(template).get("image_url")
+        self.method = load_yaml(template).get("method")
+        self.customization = load_yaml(template).get("customization")
+        self.input_format = load_yaml(template).get("input_format")
+        self.output_format = load_yaml(template).get("output_format")
+        self.downloadimage_size = load_yaml(template).get("image_size")
+        self.conversion = load_yaml(template).get("conversion")
+        self.compression = load_yaml(template).get("compression")
+        self.packages = load_yaml(template).get("packages")
         if self.packages:
             self.packages = ",".join(self.packages)
         self.output_name = f'{self.image_name}.{self.output_format}'
@@ -106,6 +107,8 @@ class BuildImage:
             pass
 
     def resize(self):
+        print(self.image_size)
+        print(self.method)
         if self.image_size is None:
             pass
         elif self.image_size and self.method == 'virt-customize':
