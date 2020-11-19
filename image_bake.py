@@ -106,8 +106,6 @@ class BuildImage:
             pass
 
     def resize(self):
-        print(self.image_size)
-        print(self.method)
         if self.image_size is None:
             pass
         elif self.image_size and self.method == 'virt-customize':
