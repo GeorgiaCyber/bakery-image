@@ -2,7 +2,7 @@
 import os
 import sys
 import argparse
-# import hashlib
+import hashlib
 import lzma
 import gzip
 import bz2
@@ -14,15 +14,14 @@ from requests import get
 from yaml import safe_load
 
 
-# def hash_file(*args):
-#     """Create SHA256 hash for a given file"""
-#     with open(*args, 'rb') as file:
-#         content = file.read()
-#     sha = hashlib.sha256()
-#     sha.update(content)
-#     sha256_hash = sha.hexdigest()
-#     return sha256_hash
-
+def hash_file(file):
+    """Create SHA256 hash for a given file"""
+    with open(file, 'rb') as f:
+        file_hash = hashlib.sha256()
+        while chunk := f.read(8192):
+            file_hash.update(chunk)
+    sha256_hash = file_hash.hexdigest()
+    return sha256_hash
 
 def load_dir(dir_path):
     """Load template directory"""
@@ -31,15 +30,15 @@ def load_dir(dir_path):
     return template_list
 
 
-# def hash_images(output_path):
-#     """Calculate sha256sum of images and output to file"""
-#     image_list = [f'{output_path}/{image}' for image in os.listdir(output_path)]
-#     if os.path.isfile(f'{output_path}/image_hashes'):
-#         write_hash = open(f'{output_path}/image_hashes', 'a')
-#     else:
-#         write_hash = open(f'{output_path}/image_hashes', 'x')
-#     for image in image_list:
-#         write_hash.write(f'{image}, {hash_file(image)}\n')
+def hash_images(output_path):
+    """Calculate sha256sum of images and output to file"""
+    image_list = [f'{output_path}/{image}' for image in os.listdir(output_path)]
+    if os.path.isfile(f'{output_path}/image_hashes'):
+        write_hash = open(f'{output_path}/image_hashes', 'a')
+    else:
+        write_hash = open(f'{output_path}/image_hashes', 'x')
+    for image in image_list:
+        write_hash.write(f'{image}, {hash_file(image)}\n')
 
 def load_yaml(template):
     with open(template, 'r') as fd:
@@ -91,7 +90,7 @@ class BuildImage:
                             progress_bar.update(len(chunk))
             os.rename(file, self.image_name)
             print(f'\nImage download finished.\n')
-            # print(f'{self.image_name}\nSHA256 Hash: {hash_file(self.image_name)}')
+            print(f'{self.image_name}\nSHA256 Hash: {hash_file(self.image_name)}')
 
     def convert(self):
         if self.convert is None:
@@ -230,7 +229,7 @@ def main():
     if args.dir_path:
         for template in load_dir(args.dir_path):
             bake(template, args.output_path, args.verbose)
-    # hash_images(args.output_path)
+    hash_images(args.output_path)
 
 if __name__ == '__main__':
     sys.exit(main())
