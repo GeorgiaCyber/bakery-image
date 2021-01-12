@@ -137,37 +137,37 @@ class BuildImage:
             print(f'\n{self.image_name} image is being created with virt-customize in VERBOSE mode')
             if self.packages:
                 call(f'virt-customize -v -x -a {self.image_name} -update\
-                     --install {self.packages} --run user_script.sh', shell=True)
+                     --install {self.packages} --run user_script.sh --selinux-relabel', shell=True)
             else:
                 call(f'virt-customize -v -x -a {self.image_name} -update\
-                     --run user_script.sh', shell=True)
+                     --run user_script.sh --selinux-relabel', shell=True)
         elif self.method == 'virt-builder' and verbose:
             print(f'\n{self.image_name} image is being created with virt-builder in VERBOSE mode')
             if self.packages:
                 call(f'virt-builder -v -x {self.image_name} --update --run user_script.sh\
-                     --format {self.output_format} --output {self.output_name}', shell=True)
+                     --format {self.output_format} --output {self.output_name} --selinux-relabel', shell=True)
             else:
                 call(f'virt-builder -v -x {self.image_name} --update --install {self.packages}\
                       --run user_script.sh --format {self.output_format}\
-                      --output {self.output_name}', shell=True)
+                      --output {self.output_name} --selinux-relabel', shell=True)
             os.rename(f'{self.output_name}', f'{self.image_name}')
         elif self.method == 'virt-customize' and verbose is False:
             print(f'\n{self.image_name} image is being created with virt-customize')
             if self.packages:
                 call(f'virt-customize -a {self.image_name} -update --install {self.packages}\
-                      --run user_script.sh', shell=True)
+                      --run user_script.sh --selinux-relabel', shell=True)
             else:
                 call(f'virt-customize -a {self.image_name} -update\
-                     --run user_script.sh', shell=True)
+                     --run user_script.sh --selinux-relabel', shell=True)
         elif self.method == 'virt-builder' and verbose is False:
             print(f'\n{self.image_name} image is being created with virt-builder')
             if self.packages:
                 call(f'virt-builder {self.image_name} --update --run user_script.sh\
-                    --format {self.output_format} --output {self.output_name}', shell=True)
+                    --format {self.output_format} --output {self.output_name} --selinux-relabel', shell=True)
             else:
                 call(f'virt-builder {self.image_name} --update --install {self.packages}\
                      --run user_script.sh --format {self.output_format}\
-                     --output {self.output_name}', shell=True)
+                     --output {self.output_name} --selinux-relabel', shell=True)
             os.rename(f'{self.output_name}', f'{self.image_name}')
         os.remove('user_script.sh')
 
