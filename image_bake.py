@@ -97,8 +97,7 @@ class BuildImage:
             pass
         elif self.convert and self.method == 'virt-customize':
             """Perform qemu image conversion for format type specified"""
-            print(f'\nConverting {self.image_name} to {self.output_format}\
-                  format with qemu-img utility...')
+            print(f'\nConverting {self.image_name} to {self.output_format} format with qemu-img utility...')
             call(f'qemu-img convert -f {self.input_format} -O {self.output_format}\
                  {self.image_name} {self.output_name}', shell=True)
             os.rename(f'{self.output_name}', f'{self.image_name}')
@@ -106,8 +105,6 @@ class BuildImage:
             pass
 
     def resize(self):
-        print(self.image_size)
-        print(self.method)
         if self.image_size is None:
             pass
         elif self.image_size and self.method == 'virt-customize':
@@ -140,7 +137,7 @@ class BuildImage:
                      --install {self.packages} --run user_script.sh --selinux-relabel', shell=True)
             else:
                 call(f'virt-customize -v -x -a {self.image_name} -update\
-                     --run user_script.sh --selinux-relabel', shell=True)
+                     --run user_script.sh', shell=True)
         elif self.method == 'virt-builder' and verbose:
             print(f'\n{self.image_name} image is being created with virt-builder in VERBOSE mode')
             if self.packages:
@@ -162,14 +159,15 @@ class BuildImage:
         elif self.method == 'virt-builder' and verbose is False:
             print(f'\n{self.image_name} image is being created with virt-builder')
             if self.packages:
-                call(f'virt-builder {self.image_name} --update --run user_script.sh\
-                    --format {self.output_format} --output {self.output_name} --selinux-relabel', shell=True)
+                call(f'virt-builder {self.image_name} --update --run user_script.sh --selinux-relabel\
+                    --format {self.output_format} --output {self.output_name}', shell=True)
             else:
                 call(f'virt-builder {self.image_name} --update --install {self.packages}\
                      --run user_script.sh --format {self.output_format}\
                      --output {self.output_name} --selinux-relabel', shell=True)
             os.rename(f'{self.output_name}', f'{self.image_name}')
         os.remove('user_script.sh')
+        call(f'virt-sysprep -a {self.image_name} --truncate /etc/machine-id', shell=True)
 
     def compress(self):
         """Compress image to specification in template file (gz, bz2, xz)"""
