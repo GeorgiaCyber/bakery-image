@@ -38,7 +38,7 @@ def load_dir(dir_path):
 #     else:
 #         write_hash = open(f'{output_path}/image_hashes', 'x')
 #     for image in image_list:
-        write_hash.write(f'{image}, {hash_file(image)}\n')
+        # write_hash.write(f'{image}, {hash_file(image)}\n')
 
 def load_yaml(template):
     with open(template, 'r') as fd:
