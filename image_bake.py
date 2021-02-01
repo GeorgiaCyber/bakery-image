@@ -227,7 +227,7 @@ def main():
     if args.dir_path:
         for template in load_dir(args.dir_path):
             bake(template, args.output_path, args.verbose)
-        hash_images(args.output_path)
+        # hash_images(args.output_path)
 
 if __name__ == '__main__':
     sys.exit(main())
