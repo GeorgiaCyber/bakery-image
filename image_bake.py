@@ -2,7 +2,6 @@
 import os
 import sys
 import argparse
-import hashlib
 import lzma
 import gzip
 import bz2
@@ -13,32 +12,11 @@ from tqdm import tqdm
 from requests import get
 from yaml import safe_load
 
-
-# def hash_file(file):
-#     """Create SHA256 hash for a given file"""
-#     with open(file, 'rb') as f:
-#         file_hash = hashlib.sha256()
-#         while chunk := f.read(8192):
-#             file_hash.update(chunk)
-#     sha256_hash = file_hash.hexdigest()
-#     return sha256_hash
-
 def load_dir(dir_path):
     """Load template directory"""
     template_list = [f'{dir_path}/{item}' for item in os.listdir(dir_path)
                      if item.endswith('.yaml') or item.endswith('.yml') or item.endswith('.sls')]
     return template_list
-
-
-# def hash_images(output_path):
-#     """Calculate sha256sum of images and output to file"""
-#     image_list = [f'{output_path}/{image}' for image in os.listdir(output_path)]
-#     if os.path.isfile(f'{output_path}/image_hashes'):
-#         write_hash = open(f'{output_path}/image_hashes', 'a')
-#     else:
-#         write_hash = open(f'{output_path}/image_hashes', 'x')
-#     for image in image_list:
-        # write_hash.write(f'{image}, {hash_file(image)}\n')
 
 def load_yaml(template):
     with open(template, 'r') as fd:
@@ -52,7 +30,6 @@ def bake(template, output_path, verbose):
     BuildImage(template).build_method(verbose)
     BuildImage(template).compress()
     BuildImage(template).store_image(output_path)
-
 
 class BuildImage:
     def __init__(self, template):
@@ -72,14 +49,11 @@ class BuildImage:
         self.output_name = f'{self.image_name}.{self.output_format}'
 
     def download(self):
-        if self.image_url is None:
-            pass
-        else:
+        if self.image_url:
             file = self.image_url.split('/')[-1]
             file_request = get(self.image_url, stream=True, allow_redirects=True)
             total_size = int(file_request.headers.get('content-length'))
             initial_pos = 0
-            print(f'\nDownloading image from ({self.image_url}):')
             with open(file, 'wb') as file_download:
                 with tqdm(total=total_size, unit='it', unit_scale=True,
                           desc=file, initial=initial_pos,
@@ -89,15 +63,12 @@ class BuildImage:
                             file_download.write(chunk)
                             progress_bar.update(len(chunk))
             os.rename(file, self.image_name)
-            print(f'\nImage download finished.\n')
-            # print(f'{self.image_name}\nSHA256 Hash: {hash_file(self.image_name)}')
+        else:
+            pass
 
     def convert(self):
-        if self.convert is None:
-            pass
-        elif self.convert and self.method == 'virt-customize':
+        if self.convert and self.method == 'virt-customize':
             """Perform qemu image conversion for format type specified"""
-            print(f'\nConverting {self.image_name} to {self.output_format} format with qemu-img utility...')
             call(f'qemu-img convert -f {self.input_format} -O {self.output_format}\
                  {self.image_name} {self.output_name}', shell=True)
             os.rename(f'{self.output_name}', f'{self.image_name}')
@@ -105,9 +76,7 @@ class BuildImage:
             pass
 
     def resize(self):
-        if self.image_size is None:
-            pass
-        elif self.image_size and self.method == 'virt-customize':
+        if self.image_size and self.method == 'virt-customize':
             """Resize image partition to specification in template file"""
             new_image = f'{self.image_name}_new'
             if search('G', self.image_size):
@@ -119,8 +88,6 @@ class BuildImage:
             call(f'virt-resize --expand /dev/sda1 {self.image_name} {new_image}', shell=True)
             copy(new_image, self.image_name)
             os.remove(new_image)
-            print('\nImage finished resizing using virt-resize\n')
-            # print(f'{self.image_name}\nSHA256 Hash: {hash_file(self.image_name)}')
         else:
             pass
 
@@ -129,51 +96,32 @@ class BuildImage:
         create_script = open('user_script.sh', 'w')
         create_script.write(self.customization)
         create_script.close()
-
-        if self.method == 'virt-customize' and verbose:
-            print(f'\n{self.image_name} image is being created with virt-customize in VERBOSE mode')
-            if self.packages:
-                call(f'virt-customize -v -x -a {self.image_name} -update\
-                     --install {self.packages} --run user_script.sh --selinux-relabel', shell=True)
+        
+        if self.method == 'virt-customize':
+            print(f'\n{self.image_name} image is being created with virt-customize')
+            if verbose:
+                call(f'virt-customize -v -x -a {self.image_name} -update --install {self.packages}\
+                      --run user_script.sh --selinux-relabel', shell=True)
             else:
-                call(f'virt-customize -v -x -a {self.image_name} -update\
-                     --run user_script.sh', shell=True)
-        elif self.method == 'virt-builder' and verbose:
-            print(f'\n{self.image_name} image is being created with virt-builder in VERBOSE mode')
-            if self.packages:
+                call(f'virt-customize -a {self.image_name} -update --install {self.packages}\
+                      --run user_script.sh --selinux-relabel', shell=True)
+        elif self.method == 'virt-builder':
+            if verbose:
                 call(f'virt-builder -v -x {self.image_name} --update --run user_script.sh\
                      --format {self.output_format} --output {self.output_name} --selinux-relabel', shell=True)
             else:
-                call(f'virt-builder -v -x {self.image_name} --update --install {self.packages}\
-                      --run user_script.sh --format {self.output_format}\
-                      --output {self.output_name} --selinux-relabel', shell=True)
-            os.rename(f'{self.output_name}', f'{self.image_name}')
-        elif self.method == 'virt-customize' and verbose is False:
-            print(f'\n{self.image_name} image is being created with virt-customize')
-            if self.packages:
-                call(f'virt-customize -a {self.image_name} -update --install {self.packages}\
-                      --run user_script.sh --selinux-relabel', shell=True)
-            else:
-                call(f'virt-customize -a {self.image_name} -update\
-                     --run user_script.sh --selinux-relabel', shell=True)
-        elif self.method == 'virt-builder' and verbose is False:
-            print(f'\n{self.image_name} image is being created with virt-builder')
-            if self.packages:
                 call(f'virt-builder {self.image_name} --update --run user_script.sh --selinux-relabel\
-                    --format {self.output_format} --output {self.output_name}', shell=True)
-            else:
-                call(f'virt-builder {self.image_name} --update --install {self.packages}\
-                     --run user_script.sh --format {self.output_format}\
-                     --output {self.output_name} --selinux-relabel', shell=True)
+                    --format {self.output_format} --output {self.output_name} --selinux-relabel', shell=True)          
             os.rename(f'{self.output_name}', f'{self.image_name}')
+        else:
+            pass
         os.remove('user_script.sh')
         call(f'virt-sysprep -a {self.image_name} --truncate /etc/machine-id', shell=True)
 
+
     def compress(self):
         """Compress image to specification in template file (gz, bz2, xz)"""
-        if self.compression is None:
-            pass
-        else:
+        if self.compression:
             print(f'\nCompressing image using {self.compression} method....')
             if self.compression == "gz":
                 with open(self.image_name, 'rb') as file_in, \
@@ -187,6 +135,8 @@ class BuildImage:
                 with open(self.image_name, 'rb') as file_in, \
                     lzma.open(f'{self.image_name}.lzma', 'wb') as file_out:
                     copyfileobj(file_in, file_out)
+        else:
+            pass
 
     def store_image(self, output_path):
         """Create directory for image storage"""
@@ -194,7 +144,6 @@ class BuildImage:
             os.makedirs(f'{output_path}')
         move(f'{self.image_name}', f'{output_path}'f'/{self.image_name}')
         print(f'\nImage \'{self.image_name}\' stored at \'{output_path}\'')
-
 
 def main():
     """CLI Parsing"""
@@ -227,7 +176,7 @@ def main():
     if args.dir_path:
         for template in load_dir(args.dir_path):
             bake(template, args.output_path, args.verbose)
-        # hash_images(args.output_path)
+
 
 if __name__ == '__main__':
     sys.exit(main())
